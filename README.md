@@ -15,7 +15,7 @@ Una vez clonado el repositorio, tiene la opción de correr el archivo `computar_
 
 `$ python computar_inflacion.py`
 
-Este comando actualiza la información de índices de precios y figuras en su computadora. El repositorio se actualiza todos los martes y viernes, incorporando nueva información provista para los índices de precios al consumidor de San Luis, Córdoba, CABA y Nacional, en el sistema de almacenamiento de archivos y catálogos de infra.datos.gob.ar.
+Este comando actualiza la información de índices de precios y figuras en su computadora. El repositorio se actualiza diariamente, incorporando nueva información provista para los índices de precios al consumidor de San Luis, Córdoba, CABA y Nacional, en el sistema de almacenamiento de archivos y catálogos de infra.datos.gob.ar.
 
 ## Series de tiempo: inflacion mensual
 
