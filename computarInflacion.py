@@ -6,7 +6,21 @@ import numpy as np
 
 ## IPC San Luis
 
-url = 'https://www.ieric.org.ar/wp-content/uploads/2021/09/IPC-Prov-San-Luis.xlsx'
+# Pagina de estadisticas de San Luis
+url = 'https://www.ieric.org.ar/series_estadisticas/san-luis/'
+
+import bs4 as bs
+import requests
+
+sauce = requests.get(url)
+soup = bs.BeautifulSoup(sauce.content,'html.parser')
+
+for a in soup.find_all('a', href=True):
+    if 'IPC-Prov-San-Luis.xlsx' in a['href']:
+        url = a['href'] # Resultado
+        print("Encontrado el URL:", url)
+        
+# url = 'https://www.ieric.org.ar/wp-content/uploads/2021/09/IPC-Prov-San-Luis.xlsx'
 data = pd.read_excel(url, sheet_name = 'Serie', skiprows=3).dropna(subset = ['Nivel General'])
 
 ipc_SanLuis = data[['Periodo', 'Nivel General']]
