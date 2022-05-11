@@ -44,7 +44,7 @@ ipc_Cordoba = ipc_Cordoba[['ipc_Cordoba']].astype(float)
 100*ipc_Cordoba.pct_change().tail()
 
 ## IPC CABA
-url = 'https://www.estadisticaciudad.gob.ar/eyc/wp-content/uploads/2019/05/Principales_aperturas_indices.xlsx'
+url = 'https://www.estadisticaciudad.gob.ar/eyc/wp-content/uploads/2022/02/Principales_aperturas_indices.xlsx'
 data = pd.read_excel(url, sheet_name = 'Principales_aperturas_indices', skiprows=2, index_col = [0]
                     ).dropna().T.iloc[:-1]
 
@@ -100,7 +100,7 @@ ipc_union = ipc + offset
 
 
 ipc_union_m = pd.DataFrame(ipc_union.mean(1), columns = ['log_index'])
-fechanivel100 = ipc_union_m['2016-01'].values
+fechanivel100 = ipc_union_m.loc['2016-01'].values
 ipc_union_m = ipc_union_m - fechanivel100
 ipc_union_m['index'] = 100*10**ipc_union_m.log_index
 ipc_union_m['log_index_diff'] = ipc_union_m.log_index.diff(1)
