@@ -146,7 +146,8 @@ ipc_union_m_.to_csv('./data/info/indice_precios_M.csv')
 ipc_ = ipc_union_m_.groupby(pd.Grouper(freq='Q')).mean().loc['2000':][['index']]#.to_csv(...)
 
 ### Convenciones para fijar fecha de trimestre.
-ipc_.index = ipc_.index - pd.DateOffset(months=2) + pd.to_timedelta(15, unit='d') 
+from pandas.tseries.offsets import DateOffset
+ipc_.index = pd.Series(ipc_.index).dt.to_period('M').dt.to_timestamp() + DateOffset(days=14, months = -1)
 ipc_.index.name = 'Q'
 ipc_.to_csv('./data/info/indice_precios_Q.csv')
 
