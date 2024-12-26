@@ -1,0 +1,145 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/matias/repos/IPC-Argentina/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+Citas	README.md	/^## Citas$/;"	s	chapter:IPC-Argentina
+IPC-Argentina	README.md	/^# IPC-Argentina$/;"	c
+Modo de uso:	README.md	/^## Modo de uso:$/;"	s	chapter:IPC-Argentina
+Series de tiempo: cambio de precios último año	README.md	/^## Series de tiempo: cambio de precios último año$/;"	s	chapter:IPC-Argentina
+Series de tiempo: inflacion mensual	README.md	/^## Series de tiempo: inflacion mensual$/;"	s	chapter:IPC-Argentina
+anos_presente	notebooks/00 - deflator index.py	/^anos_presente = pd.date_range(cur_end, new_end, freq = 'Y') + pd.DateOffset(months = 6, days = 1/;"	v
+ax	computarInflacion.py	/^fig, ax = plt.subplots(1, figsize = (12, 6))$/;"	v
+ax	notebooks/00 - deflator index.py	/^fig, ax = plt.subplots(1, figsize = (12, 6))$/;"	v
+bs	computarInflacion.py	/^import bs4 as bs$/;"	I	nameref:module:bs4
+bs	notebooks/00 - deflator index.py	/^import bs4 as bs$/;"	I	nameref:module:bs4
+csv_file	notebooks/00 - deflator index.py	/^csv_file = open('.\/..\/data\/info\/ex_PPP.csv', 'wb')$/;"	v
+csv_file	notebooks/00 - deflator index.py	/^csv_file = open('.\/..\/data\/info\/tcambiousd_diario.csv', 'wb')$/;"	v
+csv_url	notebooks/00 - deflator index.py	/^csv_url = 'https:\/\/infra.datos.gob.ar\/catalog\/sspm\/dataset\/168\/distribution\/168.1\/downl/;"	v
+csv_url	notebooks/00 - deflator index.py	/^csv_url = 'https:\/\/stats.oecd.org\/sdmx-json\/data\/DP_LIVE\/.PPP...\/OECD?contentType=csv&det/;"	v
+cur_end	notebooks/00 - deflator index.py	/^cur_end = tseries.index[-1]$/;"	v
+data	computarInflacion.py	/^data = pd.read_csv(url)#.astype(float)$/;"	v
+data	computarInflacion.py	/^data = pd.read_excel(url, sheet_name = 'IPC-Cba base 2014', skiprows=5, index_col = [0, 1, 2]$/;"	v
+data	computarInflacion.py	/^data = pd.read_excel(url, sheet_name = 'Principales_aperturas_indices', skiprows=2, index_col = /;"	v
+data	computarInflacion.py	/^data = pd.read_excel(url, sheet_name = 'Serie Histórica', skiprows=4, index_col = [0, 1]$/;"	v
+data	computarInflacion.py	/^data = pd.read_excel(url, sheet_name = 'Serie', skiprows=3).dropna(subset = ['Nivel General'])$/;"	v
+data	notebooks/00 - deflator index.py	/^data = pd.read_csv(url)#.astype(float)$/;"	v
+data	notebooks/00 - deflator index.py	/^data = pd.read_excel(url, sheet_name = 'IPC-Cba base 2014', skiprows=5, index_col = [0, 1, 2]$/;"	v
+data	notebooks/00 - deflator index.py	/^data = pd.read_excel(url, sheet_name = 'Principales_aperturas_indices', skiprows=2, index_col = /;"	v
+data	notebooks/00 - deflator index.py	/^data = pd.read_excel(url, sheet_name = 'Serie Histórica', skiprows=4, index_col = [0, 1]$/;"	v
+data	notebooks/00 - deflator index.py	/^data = pd.read_excel(url, sheet_name = 'Serie', skiprows=3).dropna(subset = ['Nivel General'])$/;"	v
+fechanivel100	computarInflacion.py	/^fechanivel100 = ipc_union_m.loc['2016-01'].values$/;"	v
+fechanivel100	notebooks/00 - deflator index.py	/^fechanivel100 = ipc_union_m['2016-01'].values$/;"	v
+fig	computarInflacion.py	/^fig, ax = plt.subplots(1, figsize = (12, 6))$/;"	v
+fig	notebooks/00 - deflator index.py	/^fig, ax = plt.subplots(1, figsize = (12, 6))$/;"	v
+info	computarInflacion.py	/^    info = ipc.iloc[:, [i + 1, i]].dropna()$/;"	v
+info	notebooks/00 - deflator index.py	/^    info = ipc.iloc[:, [i + 1, i]].dropna()$/;"	v
+ipc	computarInflacion.py	/^ipc = np.log10(ipc)$/;"	v
+ipc	computarInflacion.py	/^ipc = pd.concat([ipc_INDEC3, ipc_CABA, ipc_Cordoba, ipc_SanLuis, ipc_INDEC1], axis = 1)$/;"	v
+ipc	notebooks/00 - deflator index.py	/^ipc = np.log10(ipc)$/;"	v
+ipc	notebooks/00 - deflator index.py	/^ipc = pd.concat([ipc_INDEC3, ipc_CABA, ipc_Cordoba, ipc_SanLuis, ipc_INDEC1], axis = 1)$/;"	v
+ipc_	computarInflacion.py	/^ipc_ = ipc_union_m_.groupby(pd.Grouper(freq='Q')).mean().loc['2000':][['index']]#.to_csv(...)$/;"	v
+ipc_	notebooks/00 - deflator index.py	/^ipc_ = ipc_union_m_.groupby(pd.Grouper(freq='Q')).mean().loc['2000':][['index']]#.to_csv(...)$/;"	v
+ipc_CABA	computarInflacion.py	/^ipc_CABA = data[['Nivel General']].reset_index()$/;"	v
+ipc_CABA	computarInflacion.py	/^ipc_CABA = ipc_CABA[['ipc_CABA']].astype(float)$/;"	v
+ipc_CABA	notebooks/00 - deflator index.py	/^ipc_CABA = data[['Nivel General']].reset_index()$/;"	v
+ipc_CABA	notebooks/00 - deflator index.py	/^ipc_CABA = ipc_CABA[['ipc_CABA']].astype(float)$/;"	v
+ipc_Cordoba	computarInflacion.py	/^ipc_Cordoba = data[0]['Código'].reset_index()$/;"	v
+ipc_Cordoba	computarInflacion.py	/^ipc_Cordoba = ipc_Cordoba[['ipc_Cordoba']].astype(float)$/;"	v
+ipc_Cordoba	notebooks/00 - deflator index.py	/^ipc_Cordoba = data[0]['Código'].reset_index()$/;"	v
+ipc_Cordoba	notebooks/00 - deflator index.py	/^ipc_Cordoba = ipc_Cordoba[['ipc_Cordoba']].astype(float)$/;"	v
+ipc_INDEC1	computarInflacion.py	/^ipc_INDEC1 = data[['Nivel general']].iloc[:-1].reset_index()$/;"	v
+ipc_INDEC1	computarInflacion.py	/^ipc_INDEC1 = ipc_INDEC1.loc['2000':'2007-02']$/;"	v
+ipc_INDEC1	computarInflacion.py	/^ipc_INDEC1 = ipc_INDEC1[['ipc_INDEC1']].astype(float)$/;"	v
+ipc_INDEC1	notebooks/00 - deflator index.py	/^ipc_INDEC1 = data[['Nivel general']].iloc[:-1].reset_index()$/;"	v
+ipc_INDEC1	notebooks/00 - deflator index.py	/^ipc_INDEC1 = ipc_INDEC1.loc['2000':'2007-02']$/;"	v
+ipc_INDEC1	notebooks/00 - deflator index.py	/^ipc_INDEC1 = ipc_INDEC1[['ipc_INDEC1']].astype(float)$/;"	v
+ipc_INDEC3	computarInflacion.py	/^ipc_INDEC3 = data[['indice_tiempo', 'ipc_ng_nacional']]$/;"	v
+ipc_INDEC3	computarInflacion.py	/^ipc_INDEC3 = ipc_INDEC3[['ipc_INDEC3']].astype(float)$/;"	v
+ipc_INDEC3	notebooks/00 - deflator index.py	/^ipc_INDEC3 = data[['indice_tiempo', 'ipc_ng_nacional']]$/;"	v
+ipc_INDEC3	notebooks/00 - deflator index.py	/^ipc_INDEC3 = ipc_INDEC3[['ipc_INDEC3']].astype(float)$/;"	v
+ipc_SanLuis	computarInflacion.py	/^ipc_SanLuis = data[['Periodo', 'Nivel General']]$/;"	v
+ipc_SanLuis	computarInflacion.py	/^ipc_SanLuis = ipc_SanLuis[['ipc_SanLuis']].astype(float)$/;"	v
+ipc_SanLuis	notebooks/00 - deflator index.py	/^ipc_SanLuis = data[['Periodo', 'Nivel General']]$/;"	v
+ipc_SanLuis	notebooks/00 - deflator index.py	/^ipc_SanLuis = ipc_SanLuis[['ipc_SanLuis']].astype(float)$/;"	v
+ipc_diario	computarInflacion.py	/^ipc_diario = ipc_diario.dropna()$/;"	v
+ipc_diario	computarInflacion.py	/^ipc_diario = ipc_union_m_[['log_index', 'index']].resample('1d').interpolate('quadratic')$/;"	v
+ipc_diario	notebooks/00 - deflator index.py	/^ipc_diario = ipc_diario.dropna()$/;"	v
+ipc_diario	notebooks/00 - deflator index.py	/^ipc_diario = ipc_union_m_[['log_index', 'index']].resample('1d').interpolate('quadratic')$/;"	v
+ipc_tail	computarInflacion.py	/^ipc_tail = ipc_union_m.tail(6)$/;"	v
+ipc_tail	notebooks/00 - deflator index.py	/^ipc_tail = ipc_union_m.tail(6)$/;"	v
+ipc_union	computarInflacion.py	/^ipc_union = ipc + offset$/;"	v
+ipc_union	notebooks/00 - deflator index.py	/^ipc_union = ipc + offset$/;"	v
+ipc_union_m	computarInflacion.py	/^ipc_union_m = ipc_union_m - fechanivel100$/;"	v
+ipc_union_m	computarInflacion.py	/^ipc_union_m = pd.DataFrame(ipc_union.mean(1), columns = ['log_index'])$/;"	v
+ipc_union_m	notebooks/00 - deflator index.py	/^ipc_union_m = ipc_union_m - fechanivel100$/;"	v
+ipc_union_m	notebooks/00 - deflator index.py	/^ipc_union_m = pd.DataFrame(ipc_union.mean(1), columns = ['log_index'])$/;"	v
+ipc_union_m_	computarInflacion.py	/^ipc_union_m_ = ipc_union_m.reindex(ipc_union.index.append(meses_presente))$/;"	v
+ipc_union_m_	notebooks/00 - deflator index.py	/^ipc_union_m_ = ipc_union_m.reindex(ipc_union.index.append(meses_presente))$/;"	v
+last_valid_ix	notebooks/00 - deflator index.py	/^last_valid_ix = tseries.dropna().iloc[-1] # Level of the cpi index in last valid month$/;"	v
+last_valid_ix	notebooks/00 - deflator index.py	/^last_valid_ix = usd.dropna().iloc[-1] # Level of the cpi index in last valid month$/;"	v
+mean_pct	computarInflacion.py	/^mean_pct = 100*ipc.pct_change().replace(0, np.nan).mean(1)$/;"	v
+mean_pct	notebooks/00 - deflator index.py	/^mean_pct = 100*ipc.pct_change().replace(0, np.nan).mean(1)$/;"	v
+meses_presente	computarInflacion.py	/^meses_presente = pd.date_range(ipc_union_m.index[-1], $/;"	v
+meses_presente	notebooks/00 - deflator index.py	/^meses_presente = pd.date_range(ipc_union_m.index[-1], $/;"	v
+meses_presente	notebooks/00 - deflator index.py	/^meses_presente = pd.date_range(usd.index[-1], $/;"	v
+new_end	notebooks/00 - deflator index.py	/^new_end = tseries.index[-1] + pd.DateOffset(years = 2)$/;"	v
+np	computarInflacion.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	notebooks/00 - deflator index.py	/^import numpy as np$/;"	I	nameref:module:numpy
+off	computarInflacion.py	/^    off = info.diff(1, axis = 1).mean()[1]$/;"	v
+off	notebooks/00 - deflator index.py	/^    off = info.diff(1, axis = 1).mean()[1]$/;"	v
+offset	computarInflacion.py	/^offset = [0]$/;"	v
+offset	computarInflacion.py	/^offset = np.cumsum(np.array(offset))$/;"	v
+offset	notebooks/00 - deflator index.py	/^offset = [0]$/;"	v
+offset	notebooks/00 - deflator index.py	/^offset = np.cumsum(np.array(offset))$/;"	v
+pd	computarInflacion.py	/^import pandas as pd$/;"	I	nameref:module:pandas
+pd	notebooks/00 - deflator index.py	/^import pandas as pd$/;"	I	nameref:module:pandas
+plt	computarInflacion.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+plt	notebooks/00 - deflator index.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+ppp	notebooks/00 - deflator index.py	/^ppp = pd.read_csv('.\/..\/data\/info\/ex_PPP.csv')$/;"	v
+ppp	notebooks/00 - deflator index.py	/^ppp = ppp.groupby(pd.Grouper(level = 0, freq = 'M')).mean()$/;"	v
+ppp	notebooks/00 - deflator index.py	/^ppp = ppp.groupby(pd.Grouper(level = 0, freq = 'Q')).mean()$/;"	v
+ppp	notebooks/00 - deflator index.py	/^ppp = ppp.loc['2003':]$/;"	v
+ppp	notebooks/00 - deflator index.py	/^ppp = ppp.loc[ppp.LOCATION == 'ARG'][['TIME', 'Value']].set_index('TIME').astype(float)$/;"	v
+ppp	notebooks/00 - deflator index.py	/^ppp = ppp.resample('d').mean().interpolate(method = 'quadratic')#.plot()$/;"	v
+ppp	notebooks/00 - deflator index.py	/^ppp = tseries$/;"	v
+r	notebooks/00 - deflator index.py	/^r = tseries.pct_change().tail(6).mean()[0]$/;"	v
+r	notebooks/00 - deflator index.py	/^r = usd.pct_change().tail(6).mean()[0]$/;"	v
+ratio	notebooks/00 - deflator index.py	/^ratio = tseries.loc[last_valid_ix.name].avg_rate \/ tseries.loc[last_valid_ix.name]['Value'] $/;"	v
+ratio	notebooks/00 - deflator index.py	/^ratio = usd.loc[last_valid_ix.name].avg_rate \/ usd.loc[last_valid_ix.name]['tipo_cambio_a3500']/;"	v
+req	notebooks/00 - deflator index.py	/^req = requests.get(csv_url)$/;"	v
+rolling_anual	computarInflacion.py	/^rolling_anual = 100*(-1 + ipc_diario\/ipc_diario.shift(365))['index'].dropna()$/;"	v
+rolling_anual	notebooks/00 - deflator index.py	/^rolling_anual = 100*(-1 + ipc_diario\/ipc_diario.shift(365))['index'].dropna()$/;"	v
+sauce	computarInflacion.py	/^sauce = requests.get(url)$/;"	v
+sauce	notebooks/00 - deflator index.py	/^sauce = requests.get(url)$/;"	v
+soup	computarInflacion.py	/^soup = bs.BeautifulSoup(sauce.content,'html.parser')$/;"	v
+soup	notebooks/00 - deflator index.py	/^soup = bs.BeautifulSoup(sauce.content,'html.parser')$/;"	v
+tail_mean	computarInflacion.py	/^tail_mean = ipc_tail.mean()$/;"	v
+tail_mean	notebooks/00 - deflator index.py	/^tail_mean = ipc_tail.mean()$/;"	v
+tseries	notebooks/00 - deflator index.py	/^tseries = pd.concat([tseries, pd.DataFrame([], index = anos_presente)])$/;"	v
+tseries	notebooks/00 - deflator index.py	/^tseries = ppp$/;"	v
+tseries	notebooks/00 - deflator index.py	/^tseries = tseries.drop('avg_rate', axis = 1)$/;"	v
+url	computarInflacion.py	/^        url = a['href'] # Resultado$/;"	v
+url	computarInflacion.py	/^url = 'https:\/\/datosestadistica.cba.gov.ar\/dataset\/fedc5285-5517-41aa-9095-bb62c6dbc485\/res/;"	v
+url	computarInflacion.py	/^url = 'https:\/\/infra.datos.gob.ar\/catalog\/sspm\/dataset\/145\/distribution\/145.3\/download\//;"	v
+url	computarInflacion.py	/^url = 'https:\/\/www.estadisticaciudad.gob.ar\/eyc\/wp-content\/uploads\/2022\/02\/Principales_a/;"	v
+url	computarInflacion.py	/^url = 'https:\/\/www.ieric.org.ar\/series_estadisticas\/san-luis\/'$/;"	v
+url	computarInflacion.py	/^url = 'https:\/\/www.indec.gob.ar\/ftp\/nuevaweb\/cuadros\/10\/sh_ipc_2008.xls'$/;"	v
+url	notebooks/00 - deflator index.py	/^        url = a['href'] # Resultado$/;"	v
+url	notebooks/00 - deflator index.py	/^url = 'https:\/\/datosestadistica.cba.gov.ar\/dataset\/fedc5285-5517-41aa-9095-bb62c6dbc485\/res/;"	v
+url	notebooks/00 - deflator index.py	/^url = 'https:\/\/infra.datos.gob.ar\/catalog\/sspm\/dataset\/145\/distribution\/145.3\/download\//;"	v
+url	notebooks/00 - deflator index.py	/^url = 'https:\/\/www.estadisticaciudad.gob.ar\/eyc\/wp-content\/uploads\/2022\/02\/Principales_a/;"	v
+url	notebooks/00 - deflator index.py	/^url = 'https:\/\/www.ieric.org.ar\/series_estadisticas\/san-luis\/'$/;"	v
+url	notebooks/00 - deflator index.py	/^url = 'https:\/\/www.indec.gob.ar\/ftp\/nuevaweb\/cuadros\/10\/sh_ipc_2008.xls'$/;"	v
+usd	notebooks/00 - deflator index.py	/^usd = pd.concat([usd, pd.DataFrame([], index = meses_presente)])$/;"	v
+usd	notebooks/00 - deflator index.py	/^usd = pd.read_csv('.\/..\/data\/info\/tcambiousd_diario.csv',$/;"	v
+usd	notebooks/00 - deflator index.py	/^usd = usd.drop('avg_rate', axis = 1)$/;"	v
+usd	notebooks/00 - deflator index.py	/^usd = usd.groupby(pd.Grouper(level = 0, freq = 'M')).mean()$/;"	v
+usd	notebooks/00 - deflator index.py	/^usd = usd.groupby(pd.Grouper(level = 0, freq = 'Q')).mean()$/;"	v
+usd	notebooks/00 - deflator index.py	/^usd = usd.loc['2003':]$/;"	v
