@@ -23,6 +23,9 @@ jobs:
         run: |
           pip install -r requirements.txt
         working-directory: ${{ github.workspace }}
+
+      - name: Install bs4 directly (failsafe)
+        run: pip install beautifulsoup4
         
       - name: Run computarInflacion.py
         run: python computarInflacion.py
