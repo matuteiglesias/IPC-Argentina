@@ -85,14 +85,16 @@ ipc_INDEC3 = ipc_INDEC3[['ipc_INDEC3']].astype(float)
 ## Concatenar series:
 
 ipc = pd.concat([ipc_INDEC3, ipc_CABA, ipc_Cordoba, ipc_SanLuis, ipc_INDEC1], axis = 1)
-mean_pct = 100*ipc.pct_change().replace(0, np.nan).mean(1)
+# mean_pct = 100*ipc.pct_change().replace(0, np.nan).mean(1)
+mean_pct = 100*ipc.pct_change(fill_method=None).replace(0, np.nan).mean(1)
 ipc = np.log10(ipc)
 
 ## Offset para alinear los indices de distintas series:
 offset = [0]
 for i, column in enumerate(ipc.columns[1:]):
     info = ipc.iloc[:, [i + 1, i]].dropna()
-    off = info.diff(1, axis = 1).mean()[1]
+    # off = info.diff(1, axis = 1).mean()[1]
+    off = info.diff(1, axis = 1).mean().iloc[1]
     offset += [off]
     
 offset = np.cumsum(np.array(offset))
@@ -114,8 +116,11 @@ ipc_union_m['pct_m'] = mean_pct
 ipc_tail = ipc_union_m.tail(6)
 tail_mean = ipc_tail.mean()
 
-meses_presente = pd.date_range(ipc_union_m.index[-1], 
-              ipc_union_m.index[-1] + pd.DateOffset(months=6), freq = 'M') + pd.DateOffset(days=1)
+# meses_presente = pd.date_range(ipc_union_m.index[-1], 
+#               ipc_union_m.index[-1] + pd.DateOffset(months=6), freq = 'M') + pd.DateOffset(days=1)
+meses_presente = pd.date_range(ipc_union_m.index[-1],
+              ipc_union_m.index[-1] + pd.DateOffset(months=6), freq = 'ME') + pd.DateOffset(days=1)
+
 
 ipc_union_m_ = ipc_union_m.reindex(ipc_union.index.append(meses_presente))
 
@@ -143,7 +148,8 @@ ipc_diario.to_csv('./data/info/indice_precios_d.csv')
 ipc_union_m_.to_csv('./data/info/indice_precios_M.csv')
 
 ## Indice de precios Trimestral
-ipc_ = ipc_union_m_.groupby(pd.Grouper(freq='Q')).mean().loc['2000':][['index']]#.to_csv(...)
+# ipc_ = ipc_union_m_.groupby(pd.Grouper(freq='Q')).mean().loc['2000':][['index']]#.to_csv(...)
+ipc_ = ipc_union_m_.groupby(pd.Grouper(freq='QE')).mean().loc['2000':][['index']]
 
 ### Convenciones para fijar fecha de trimestre.
 from pandas.tseries.offsets import DateOffset
@@ -164,7 +170,8 @@ fig, ax = plt.subplots(1, figsize = (12, 6))
 ax.set_title('Inflacion Mensual.\nIndices provinciales e INDEC vs indice promedio.')
 ax.set_ylabel('Inflacion Mensual [%]')
 
-(100*(10**ipc_union).pct_change().replace(0, np.nan)).plot(marker = '.', alpha = .2, ax = ax)
+# (100*(10**ipc_union).pct_change().replace(0, np.nan)).plot(marker = '.', alpha = .2, ax = ax)
+(100*(10**ipc_union).pct_change(fill_method=None).replace(0, np.nan)).plot(marker = '.', alpha = .2, ax = ax)
 
 (ipc_union_m.pct_m).plot(color = 'k', lw = 1, ax = ax)
 
