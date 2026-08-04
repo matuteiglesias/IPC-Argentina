@@ -25,18 +25,20 @@ upstream: []
 downstream:
 - repo.canastasindec
 canonical_commands:
-- python scripts/verify_snapshot.py
-- python computarInflacion.py
+- make check
+- make smoke
+- make regenerate
 generated_paths:
 - data/info/
 - figuras/
 verification:
   status: partial
   last_verified: '2026-08-04'
-  command: python scripts/verify_snapshot.py
+  command: make check
   unknowns:
+  - Make targets require execution from a local checkout
   - latest successful source refresh is unknown
-  - official-source compatibility requires a live run
+  - official-source compatibility requires a live regeneration
 maintenance:
   cadence: annual
   next_review: '2027-02-01'
