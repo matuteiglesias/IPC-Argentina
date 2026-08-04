@@ -1,0 +1,6 @@
+period,series,value,class
+2020-01,A,100,observed
+2020-02,A,102,observed
+2020-03,A,104,observed
+2020-01,B,200,observed
+2020-03,B,208,observed

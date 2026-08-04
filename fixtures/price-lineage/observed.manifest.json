@@ -1,0 +1,20 @@
+{
+  "schema": "research-artifact-manifest/v1",
+  "artifact_id": "fixture.price-lineage.observed.v1",
+  "artifact_type": "publicdata.argentina-price-observed/v1",
+  "status": "synthetic",
+  "frequency": "monthly",
+  "coverage": {
+    "first": "2020-01",
+    "last": "2020-03"
+  },
+  "base_or_reference": "series-specific source base",
+  "files": [
+    {
+      "path": "observed.csv",
+      "sha256": "c576a0d9b4b682ce6b59af26df5a6e381e5ade5978bcf40804a19e234f424f45"
+    }
+  ],
+  "value_class_column": "class",
+  "method": "two invented inputs; B intentionally misses 2020-02"
+}

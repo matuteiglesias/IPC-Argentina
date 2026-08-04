@@ -77,6 +77,10 @@ La versión diaria es una interpolación de observaciones mensuales; no represen
 
 Una revisión anual debería comprobar fuentes, fecha de corte, ejecución del pipeline y coherencia entre CSV y figuras. Hasta completar esa revisión, citar la serie como snapshot versionado y no como indicador corriente.
 
+## Contratos de linaje
+
+La [lista de familias de productos](docs/PRICE_PRODUCT_FAMILIES.md) separa fuentes observadas, compuestos, interpolaciones y proyecciones. El [grafo de transformación](contracts/price-transformation-graph.json), el [contrato de release](docs/PRICE_RELEASE_CONTRACT.md), la [investigación monetaria EPH](docs/EPH_MONETARY_REFERENCE_INVESTIGATION.md) y las [decisiones pendientes](docs/PRICE_METHOD_DECISIONS_REQUIRED.md) son evidencia de preparación: no cambian la serie ni garantizan datos recientes.
+
 ## Cita
 
 > Iglesias, M. (2021–). *IPC-Argentina*. Repositorio de GitHub.

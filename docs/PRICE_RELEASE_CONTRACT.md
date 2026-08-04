@@ -1,0 +1,7 @@
+# Price release envelope and compatibility contract
+
+Fixture/candidate artifacts use `research-artifact-manifest/v1`. The `artifact_type` keeps source observations (`publicdata.argentina-price-observed/v1`), analytical composites (`research.argentina-price-composite/v1`), and monetary conversions (`research.argentina-monetary-conversion/v1`) distinct. Status is one of `synthetic`, `candidate`, `reviewed`, or `approved`; promotion is human-controlled.
+
+Each manifest declares identity, type, status, frequency, coverage, base/reference, files with SHA-256, a value-class column, and method. `contracts/price-release-compatibility.json` declares controlled values and provisional consumer constraints. `scripts/validate_price_release.py` rejects unknown types/status/classes, missing fields/files, unsafe paths, and hash mismatches. With `--consumer NAME --approved-mode`, it also rejects classes forbidden by that consumer's proposed approved-mode policy. It validates declarations; it does not validate economic methodology or official-source freshness.
+
+The deterministic fixture contains two invented observed inputs with different bases, an intentionally missing month, declared rebase and splice, linear interpolation, one projected month, and a constant conversion between two explicitly fictional references. Rebuild with `make release-fixture`; validate with `make release-check`. It must never be presented as an Argentine IPC.
