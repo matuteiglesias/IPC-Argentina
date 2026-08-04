@@ -1,0 +1,24 @@
+{
+  "schema": "price-transformation-graph/v1",
+  "nodes": [
+    {"id":"indec_historical","family":"official_observed_source","base":"source-declared","coverage":"2000-01 through 2007-02 selected"},
+    {"id":"indec_modern","family":"official_observed_source","base":"2016-12","coverage":"source-dependent"},
+    {"id":"caba","family":"official_observed_source","base":"source-declared","coverage":"source-dependent"},
+    {"id":"cordoba","family":"official_observed_source","base":"2014","coverage":"source-dependent"},
+    {"id":"san_luis","family":"official_observed_source","base":"source-declared","coverage":"source-dependent"},
+    {"id":"monthly_composite","path":"data/info/indice_precios_M.csv","family":"analytical_composite","base":"2016-01=100"},
+    {"id":"daily_composite","path":"data/info/indice_precios_d.csv","family":"interpolated_daily_series","base":"2016-01=100"},
+    {"id":"quarterly_composite","path":"data/info/indice_precios_Q.csv","family":"analytical_composite","base":"2016-01=100"}
+  ],
+  "edges": [
+    {"from":"indec_historical","to":"monthly_composite","class":"selection","code":"computarInflacion.py","parameters":{"selected":"2000 through 2007-02"}},
+    {"from":"indec_modern","to":"monthly_composite","class":"log_rebase_and_aggregation","code":"computarInflacion.py","parameters":{"alignment":"sequential mean overlap log10 offset","aggregation":"row mean","normalization":"2016-01=100"}},
+    {"from":"caba","to":"monthly_composite","class":"log_rebase_and_aggregation","code":"computarInflacion.py","parameters":{"zero_change":"treated missing for pct_m"}},
+    {"from":"cordoba","to":"monthly_composite","class":"log_rebase_and_aggregation","code":"computarInflacion.py","parameters":{"zero_change":"treated missing for pct_m"}},
+    {"from":"san_luis","to":"monthly_composite","class":"log_rebase_and_aggregation","code":"computarInflacion.py","parameters":{"zero_change":"treated missing for pct_m"}},
+    {"from":"monthly_composite","to":"monthly_composite","class":"projection","code":"computarInflacion.py","parameters":{"months":6,"method":"mean of last six rows; repeated pct_m and log_index_diff"}},
+    {"from":"monthly_composite","to":"daily_composite","class":"interpolation","code":"computarInflacion.py","parameters":{"frequency":"1d","method":"quadratic","columns":["log_index","index"]}},
+    {"from":"monthly_composite","to":"quarterly_composite","class":"aggregation","code":"computarInflacion.py","parameters":{"frequency":"quarter-end","method":"mean","label":"middle month day 15"}}
+  ],
+  "limitations": ["The code calls the operation an offset/alignment, not a formally documented splice.", "No source snapshots or vintages are committed, so an exact rerun is not independently reproducible."]
+}

@@ -1,0 +1,4 @@
+period,from_reference,to_reference,factor,class
+2020-01,fixture_ref_A,fixture_ref_B,2,synthetic
+2020-02,fixture_ref_A,fixture_ref_B,2,synthetic
+2020-03,fixture_ref_A,fixture_ref_B,2,synthetic

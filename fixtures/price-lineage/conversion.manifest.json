@@ -1,0 +1,20 @@
+{
+  "schema": "research-artifact-manifest/v1",
+  "artifact_id": "fixture.price-lineage.conversion.v1",
+  "artifact_type": "research.argentina-monetary-conversion/v1",
+  "status": "synthetic",
+  "frequency": "monthly",
+  "coverage": {
+    "first": "2020-01",
+    "last": "2020-03"
+  },
+  "base_or_reference": "fixture only; see columns",
+  "files": [
+    {
+      "path": "conversion.csv",
+      "sha256": "d3a538d80bf1c7a7c077dc4044ec13c75643ad8805a900363f7c0fee60655388"
+    }
+  ],
+  "value_class_column": "class",
+  "method": "invented constant conversion; no real currency"
+}

@@ -1,0 +1,5 @@
+period,value,primary_class,flags
+2020-01,100,derived,synthetic;rebased
+2020-02,102,interpolated,synthetic;imputed
+2020-03,104,derived,synthetic;spliced
+2020-04,106,projected,synthetic

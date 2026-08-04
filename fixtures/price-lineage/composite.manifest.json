@@ -1,0 +1,20 @@
+{
+  "schema": "research-artifact-manifest/v1",
+  "artifact_id": "fixture.price-lineage.composite.v1",
+  "artifact_type": "research.argentina-price-composite/v1",
+  "status": "synthetic",
+  "frequency": "monthly",
+  "coverage": {
+    "first": "2020-01",
+    "last": "2020-04"
+  },
+  "base_or_reference": "fixture 2020-01=100",
+  "files": [
+    {
+      "path": "composite.csv",
+      "sha256": "7e7f7465c319f1437f851603d27ad0b03529d825636300cf9c9aebece017b342"
+    }
+  ],
+  "value_class_column": "primary_class",
+  "method": "A rebased; B divided by 2; missing 2020-02 linearly interpolated; declared splice at 2020-03; 2020-04 projected +2"
+}

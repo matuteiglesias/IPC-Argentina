@@ -1,0 +1,23 @@
+{
+  "schema": "price-release-compatibility/v1",
+  "allowed_artifact_types": [
+    "publicdata.argentina-price-observed/v1",
+    "research.argentina-price-composite/v1",
+    "research.argentina-monetary-conversion/v1"
+  ],
+  "allowed_statuses": ["synthetic", "candidate", "reviewed", "approved"],
+  "allowed_value_classes": ["observed", "derived", "imputed", "interpolated", "projected", "synthetic", "unresolved"],
+  "consumers": {
+    "income-modeling-eph": {
+      "required_frequency": "monthly",
+      "approved_mode": {"forbid_classes": ["projected", "unresolved"]},
+      "monetary_reference_must_be_explicit": true
+    },
+    "canastasINDEC": {
+      "required_frequency": "daily_or_monthly",
+      "approved_mode": {"forbid_classes": ["unresolved"]},
+      "projection_policy_must_be_explicit": true
+    }
+  },
+  "note": "Requirements are a proposed preflight contract; downstream repositories were unavailable in this checkout and were not changed."
+}
