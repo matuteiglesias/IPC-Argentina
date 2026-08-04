@@ -45,10 +45,22 @@ print(ipc.tail())
 Para intentar regenerar los datos y las figuras:
 
 ```bash
-python computar_inflacion.py
+python computarInflacion.py
 ```
 
 La regeneración depende de fuentes externas y de un entorno Python que no fue revalidado en esta actualización del README.
+
+## Verificación de frescura
+
+El estado declarado del snapshot vive en [`DATA_STATUS.json`](DATA_STATUS.json). Se puede comprobar sin acceso a red con:
+
+```bash
+python scripts/verify_snapshot.py
+```
+
+La verificación confirma el corte del archivo comprometido y la frontera entre observaciones y meses proyectados. **No prueba** que las fuentes externas sigan disponibles ni que el workflow diario esté funcionando.
+
+Una regeneración válida debe actualizar primero `DATA_STATUS.json` con evidencia del nuevo corte observado y de la ejecución exitosa.
 
 ## Interpretación correcta
 
