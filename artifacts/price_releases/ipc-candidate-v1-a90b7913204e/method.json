@@ -1,0 +1,12 @@
+{
+  "algorithm": "log10; sequential mean-overlap offsets; row mean; 2016-01=100; mean non-zero source changes",
+  "materialization": "recovered retained legacy composite; inputs unavailable",
+  "method_id": "research.argentina-price-composite/legacy-compatible-v1",
+  "source_order": [
+    "indec_ipc_national",
+    "idecba_ipc_level_general_empalmed",
+    "cordoba_ipc",
+    "san_luis_ipc_provincial",
+    "indec_ipc_gba_historical"
+  ]
+}

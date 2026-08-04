@@ -1,0 +1,89 @@
+{
+  "artifact_id": "ipc-candidate-v1-a90b7913204e",
+  "artifact_type": "research.argentina-price-composite/v1",
+  "coverage": {
+    "monthly": {
+      "end": "2025-07-01",
+      "start": "2000-01-01",
+      "status": "derived_from_observed"
+    },
+    "quarterly": {
+      "end": "2025-05-15",
+      "start": "2000-02-15",
+      "status": "derived_aggregate"
+    }
+  },
+  "created_at": "2026-08-04T07:39:26-03:00",
+  "files": [
+    {
+      "path": "compatibility.json",
+      "role": "compatibility",
+      "sha256": "e2149a59d7c7fe8c978dcd7e25825cd59bd845a5cffa9b903bdbfeb09957b084",
+      "size": 542
+    },
+    {
+      "path": "method.json",
+      "role": "method",
+      "sha256": "b6d5f4c44c15185d96c6cbe294c207856479417780334ae8209e380d1c68064c",
+      "size": 440
+    },
+    {
+      "path": "source_lock.json",
+      "role": "source_lock",
+      "sha256": "042086f12daec262531e7e27fe9e9b3704bb4883c6bc35807c96a453a1cf21dc",
+      "size": 262
+    },
+    {
+      "path": "source_coverage.csv",
+      "role": "source_coverage",
+      "sha256": "bb722243e74086f29dcf563e691d0c446af947ac18425808116a4724e0adfc70",
+      "size": 116
+    },
+    {
+      "path": "normalized_sources.csv",
+      "role": "normalized_sources",
+      "sha256": "bb2a2178c6818531ae2ae35a94bcbabb15c06f5452581082cf6b350ff34728bf",
+      "size": 99
+    },
+    {
+      "path": "monthly_composite.csv",
+      "role": "monthly_composite",
+      "sha256": "0fa5c6c1abcd92769a3a42aaadda302e0c637b21d5cadf7c1d3e32576463aace",
+      "size": 63865
+    },
+    {
+      "path": "quarterly_composite.csv",
+      "role": "quarterly_composite",
+      "sha256": "a4f69059921896c78bfe3584632a6103124e2f3c2fcc74ca78c85620beb266ba",
+      "size": 7775
+    },
+    {
+      "path": "qa.json",
+      "role": "qa",
+      "sha256": "f5c8d639eb221898c41a8513384f53bc660a1a4e031502d3c5cb1d48f407b49e",
+      "size": 352
+    },
+    {
+      "path": "limitations.md",
+      "role": "limitations",
+      "sha256": "c6333cba6f33733efc88c73def269018b491fe282e129396462fe29bf187db51",
+      "size": 405
+    }
+  ],
+  "method_id": "research.argentina-price-composite/legacy-compatible-v1",
+  "monetary_reference_id": "research.argentina-price-composite/legacy-compatible-v1@2016-01=100",
+  "producer": {
+    "commit": "b4b5c5def452e7a562e7902ca2dcbf231108ed8d",
+    "repository": "IPC-Argentina"
+  },
+  "release_id": "ipc-candidate-v1-a90b7913204e",
+  "schema": "research-artifact-manifest/v1",
+  "status": "candidate",
+  "warnings": [
+    "source_unavailable",
+    "historical_source_hash_not_retained",
+    "historical_eph_price_hash_unavailable",
+    "partial_monthly_source_coverage",
+    "projection_excluded_from_core"
+  ]
+}

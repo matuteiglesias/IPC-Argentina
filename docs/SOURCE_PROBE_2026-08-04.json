@@ -1,0 +1,35 @@
+{
+  "schema": "price-source-probe/v1",
+  "results": [
+    {
+      "source_id": "indec_ipc_gba_historical",
+      "status": "unavailable",
+      "warning_code": "source_unavailable",
+      "evidence": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "source_id": "indec_ipc_national",
+      "status": "unavailable",
+      "warning_code": "source_unavailable",
+      "evidence": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "source_id": "idecba_ipc_level_general_empalmed",
+      "status": "unavailable",
+      "warning_code": "source_unavailable",
+      "evidence": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "source_id": "cordoba_ipc",
+      "status": "unavailable",
+      "warning_code": "source_unavailable",
+      "evidence": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "source_id": "san_luis_ipc_provincial",
+      "status": "unavailable",
+      "warning_code": "source_unavailable",
+      "evidence": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>"
+    }
+  ]
+}

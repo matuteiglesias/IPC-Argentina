@@ -1,0 +1,9 @@
+{
+  "entries": [],
+  "legacy_composite_sha256": "a90b7913204e9e181faae7bac817a201335b3eda7e6edc5018b4f6cc08a73a69",
+  "schema": "price-source-lock/v1",
+  "status": "historical_inputs_not_retained",
+  "warnings": [
+    "historical_source_hash_not_retained"
+  ]
+}

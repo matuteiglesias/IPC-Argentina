@@ -1,0 +1,2 @@
+source_id,period_start,period_end,row_count,status
+historical_inputs_not_retained,2000-01-01,2025-07-01,307,warning
