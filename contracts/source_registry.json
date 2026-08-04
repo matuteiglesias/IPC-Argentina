@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "registry_id": "registry:research.argentina-price-sources@1",
+  "recorded_at_utc": "2026-08-04T10:17:00Z",
+  "purpose": "Recover the exact source graph used by the legacy analytical composite and provide stable discovery surfaces for a candidate v1 refresh.",
+  "sources": [
+    {
+      "source_id": "indec_ipc_gba_historical",
+      "authority": "Instituto Nacional de Estadistica y Censos (INDEC)",
+      "jurisdiction": "Gran Buenos Aires",
+      "role": "historical_anchor",
+      "frequency": "monthly",
+      "expected_coverage": "through 2007-02 in the legacy parser",
+      "landing_page": "https://www.indec.gob.ar/",
+      "retrieval": {
+        "kind": "direct_file",
+        "url": "https://www.indec.gob.ar/ftp/nuevaweb/cuadros/10/sh_ipc_2008.xls"
+      },
+      "legacy_parser": {
+        "sheet": "Serie Historica",
+        "value_column": "Nivel general"
+      },
+      "authority_class": "official_source",
+      "operational_status": "known_legacy_endpoint"
+    },
+    {
+      "source_id": "indec_ipc_national",
+      "authority": "Instituto Nacional de Estadistica y Censos (INDEC)",
+      "jurisdiction": "Argentina",
+      "role": "current_national_anchor",
+      "frequency": "monthly",
+      "landing_page": "https://datos.gob.ar/dataset/sspm-indice-precios-al-consumidor-nivel-general-base-diciembre-2016-mensual",
+      "retrieval": {
+        "kind": "direct_csv",
+        "url": "https://infra.datos.gob.ar/catalog/sspm/dataset/145/distribution/145.3/download/indice-precios-al-consumidor-nivel-general-base-diciembre-2016-mensual.csv"
+      },
+      "expected_columns": [
+        "indice_tiempo",
+        "ipc_ng_nacional"
+      ],
+      "authority_class": "official_source",
+      "operational_status": "stable_catalog_distribution"
+    },
+    {
+      "source_id": "idecba_ipc_level_general_empalmed",
+      "authority": "Instituto de Estadistica y Censos de la Ciudad Autonoma de Buenos Aires (IDECBA)",
+      "jurisdiction": "Ciudad Autonoma de Buenos Aires",
+      "role": "provincial_bridge_and_current_input",
+      "frequency": "monthly",
+      "expected_coverage": "2012-07 onward",
+      "landing_page": "https://www.estadisticaciudad.gob.ar/eyc/categoria-banco-datos/series-empalmadas/",
+      "series_page": "https://www.estadisticaciudad.gob.ar/eyc/banco-datos/ipcba-base-2021-100-nivel-general-indice-mensual-empalmado-con-la-serie-anterior-base-julio-2011-junio-2012-100-ciudad-de-buenos-aires-julio-de-2012-agosto-de-2025/",
+      "retrieval": {
+        "kind": "discover_anchor_from_series_page",
+        "anchor_text": "Ver Archivo",
+        "current_url_observed_2026_08_04": "https://www.estadisticaciudad.gob.ar/eyc/wp-content/uploads/2026/05/IPCBA_base_2021100-Nivel_general_empalme.xlsx"
+      },
+      "authority_class": "official_source",
+      "operational_status": "stable_series_page_dynamic_file"
+    },
+    {
+      "source_id": "cordoba_ipc",
+      "authority": "Direccion General de Estadistica y Censos de Cordoba",
+      "jurisdiction": "Cordoba",
+      "role": "provincial_bridge_and_current_input",
+      "frequency": "monthly",
+      "package_id": "fedc5285-5517-41aa-9095-bb62c6dbc485",
+      "landing_page": "https://datosestadistica.cba.gov.ar/dataset/indic",
+      "retrieval": {
+        "kind": "ckan_resource_discovery",
+        "preferred_resource_id": "b40b602a-eeee-4486-93ec-a2d361d0502d",
+        "preferred_resource_description": "IPC-CBA empalme serie base 2014, CSV",
+        "current_series_csv_resource_id": "05541347-e05d-4088-a2b8-a802a26f6777",
+        "current_series_xlsx_resource_id": "2b4a7c60-1c8a-45b1-be8f-2bd59bfe2364",
+        "legacy_base_2014_csv_resource_id": "af1ea9dc-1e04-4703-b9c7-8df8f42c9296",
+        "legacy_base_2014_xlsx_resource_id": "1b0796cd-027a-4627-bf27-d5616c819dbb",
+        "ckan_package_api": "https://datosestadistica.cba.gov.ar/api/3/action/package_show?id=indic"
+      },
+      "authority_class": "official_source",
+      "operational_status": "stable_ckan_package_dynamic_download_url",
+      "notes": [
+        "The legacy hard-coded resource ID still exists but its workbook filename and base changed in 2025-2026.",
+        "Prefer the official empalmed CSV resource for continuity and discover its current URL through CKAN metadata."
+      ]
+    },
+    {
+      "source_id": "san_luis_ipc_provincial",
+      "authority": "Direccion de Estadistica y Censos de San Luis",
+      "jurisdiction": "San Luis city",
+      "role": "provincial_bridge_and_current_input",
+      "frequency": "monthly",
+      "official_landing_page": "https://estadistica.sanluis.gov.ar/Categorias/economia/precios/ipc-sanluis",
+      "official_report_search": "https://estadistica.sanluis.gov.ar/Informe/BuscarInformes?categoriaId=3",
+      "machine_readable_mirror": {
+        "publisher": "IERIC",
+        "landing_page": "https://www.ieric.org.ar/series_estadisticas/san-luis/",
+        "retrieval_kind": "discover_anchor_by_filename",
+        "filename_pattern": "IPC-Prov-San-Luis.xlsx"
+      },
+      "authority_class": "official_reports_with_third_party_series_mirror",
+      "operational_status": "dynamic_discovery_required",
+      "notes": [
+        "The official San Luis site exposes monthly reports but no obvious stable machine-readable historical-series endpoint.",
+        "The legacy code intentionally discovered the IERIC workbook link from the stable provincial series page. Preserve this as a mirror with explicit provenance, not as the primary statistical authority."
+      ]
+    }
+  ],
+  "candidate_v1_input_order": [
+    "indec_ipc_national",
+    "idecba_ipc_level_general_empalmed",
+    "cordoba_ipc",
+    "san_luis_ipc_provincial",
+    "indec_ipc_gba_historical"
+  ],
+  "discovery_policy": {
+    "prefer_stable_catalog_or_series_pages": true,
+    "record_resolved_file_url": true,
+    "record_retrieval_timestamp": true,
+    "hash_downloaded_bytes": true,
+    "do_not_require_every_source_for_every_month": true,
+    "require_at_least_one_valid_source_per_emitted_month": true
+  }
+}
