@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "audited_at": "2026-08-04",
+  "artifact": "data/info/indice_precios_M.csv",
+  "artifact_max_period": "2025-12-01",
+  "observed_through": "2025-07-01",
+  "projected_from": "2025-08-01",
+  "projection_method": "repeat the recent mean monthly change for six appended months",
+  "last_artifact_update_evidence": {
+    "commit": "060356dc39dcddc10a225ce33d9a293eb8b9110a",
+    "committed_at": "2025-07-15"
+  },
+  "automation": {
+    "configured": true,
+    "workflow": ".github/workflows/main.yml",
+    "schedule": "daily at 06:00 UTC",
+    "last_successful_run": "unknown",
+    "successful_artifact_update_after_2025_07_15_evidenced": false
+  },
+  "classification": "stale-versioned-snapshot",
+  "failure_policy": "Do not describe the artifact as current. Fail verification if the declared cutoffs no longer match the CSV."
+}
