@@ -1,0 +1,16 @@
+{
+  "allow_candidate_with_warnings": true,
+  "consumer": "canastasINDEC",
+  "monetary_reference_id": "research.argentina-price-composite/legacy-compatible-v1@2016-01=100",
+  "observed_derived_through": "2025-07-01",
+  "projection_included": false,
+  "schema": "price-release-compatibility-declaration/v1",
+  "status": "candidate",
+  "warnings": [
+    "source_unavailable",
+    "historical_source_hash_not_retained",
+    "historical_eph_price_hash_unavailable",
+    "partial_monthly_source_coverage",
+    "projection_excluded_from_core"
+  ]
+}

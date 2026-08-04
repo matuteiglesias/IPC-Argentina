@@ -1,0 +1,14 @@
+{
+  "hard_failures": [],
+  "monthly_rows": 307,
+  "normalized_source_rows": 0,
+  "quarterly_rows": 102,
+  "schema": "price-candidate-qa/v1",
+  "warnings": [
+    "source_unavailable",
+    "historical_source_hash_not_retained",
+    "historical_eph_price_hash_unavailable",
+    "partial_monthly_source_coverage",
+    "projection_excluded_from_core"
+  ]
+}
