@@ -1,0 +1,42 @@
+# This file declares the repository boundary and its place in the GitHub estate.
+schema_version: 1
+id: publicdata.prices.index
+repository:
+  id: repo.ipc-argentina
+  github: matuteiglesias/IPC-Argentina
+domain: public-data
+system: publicdata.prices
+role: derived-price-index-producer
+lifecycle: maintenance
+authority:
+  status: proposed
+  owns:
+  - versioned composite price-index artifacts and historical transformation logic
+  - observed-versus-projected cutoff declaration
+  does_not_own:
+  - official jurisdictional IPC authority
+  - guaranteed current data
+  - regional basket semantics
+interfaces:
+  consumes: []
+  produces:
+  - artifact:publicdata.price-index@1
+upstream: []
+downstream:
+- repo.canastasindec
+canonical_commands:
+- python scripts/verify_snapshot.py
+- python computarInflacion.py
+generated_paths:
+- data/info/
+- figuras/
+verification:
+  status: partial
+  last_verified: '2026-08-04'
+  command: python scripts/verify_snapshot.py
+  unknowns:
+  - latest successful source refresh is unknown
+  - official-source compatibility requires a live run
+maintenance:
+  cadence: annual
+  next_review: '2027-02-01'
