@@ -1,0 +1,70 @@
+name: Scheduled price-source convergence
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 9 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scheduled-price-source-convergence
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify committed snapshot
+        run: make check
+
+      - name: Probe declared live price sources
+        run: make price-source-probe
+
+      - name: Lock available source bytes
+        run: make price-source-lock
+
+      - name: Verify source lock
+        run: make price-source-lock-check
+
+      - name: Build current candidate envelope
+        run: make price-candidate
+
+      - name: Apply current consumer maturity gate
+        run: make price-candidate-check
+
+      - name: Summarize maintenance state
+        if: always()
+        run: |
+          {
+            echo "## Scheduled IPC candidate convergence"
+            echo
+            echo "This workflow intentionally executes the real source-probe → lock → candidate → consumer-preflight path."
+            echo
+            echo "A red run means the current repository cannot yet produce a candidate satisfying its own declared downstream maturity gate; it is operational evidence, not a reason to weaken the gate."
+            echo
+            echo '```text'
+            find artifacts -maxdepth 3 -type f -printf '%P\n' 2>/dev/null | sort | head -150 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipc-maintenance-candidate
+          path: |
+            artifacts/source_locks
+            artifacts/price_releases
+          if-no-files-found: warn
+          retention-days: 14
