@@ -1,6 +1,6 @@
 PY ?= python3
 
-.PHONY: help check smoke regenerate release-fixture release-check monetary-lineage-report price-source-probe price-source-lock price-source-lock-check price-candidate price-candidate-check price-candidate-smoke price-v2-build price-v2-check price-v2-approved-check test-price
+.PHONY: help check smoke regenerate release-fixture release-check monetary-lineage-report price-source-probe price-source-lock price-source-lock-check price-candidate price-candidate-check price-candidate-smoke price-v2-build price-v2-check price-v2-approved-check price-v2-audit test-price
 
 help:
 	@echo "IPC-Argentina command surface"
@@ -19,6 +19,7 @@ help:
 	@echo "  make price-v2-build           Build normalized sources + v2 consensus + conversion from SOURCE_LOCK"
 	@echo "  make price-v2-check           Validate all three v2 candidate releases independently"
 	@echo "  make price-v2-approved-check  Require latest v2 consensus month to have >=3 contributors"
+	@echo "  make price-v2-audit           Compare v1/v2 common support and bounded robustness diagnostics"
 	@echo ""
 	@echo "Regeneration may require network access and source compatibility."
 
@@ -73,6 +74,10 @@ price-v2-approved-check:
 	d=$$(find artifacts/price_v2/consensus -mindepth 1 -maxdepth 1 -type d | sort | tail -1); \
 	test -n "$$d" || (echo "missing v2 consensus release" >&2; exit 2); \
 	PYTHONPATH=src $(PY) -m arg_price.v2_validate "$$d" --require-approved-latest
+
+price-v2-audit:
+	@test -n "$(V2_NORMALIZED)" -a -n "$(V2_CONSENSUS)" || (echo "V2_NORMALIZED and V2_CONSENSUS are required" >&2; exit 2)
+	PYTHONPATH=src $(PY) -m arg_price.v2_audit --normalized-sources "$(V2_NORMALIZED)/normalized_sources.csv" --consensus-monthly "$(V2_CONSENSUS)/monthly_consensus.csv" --output "$${AUDIT_OUTPUT:-artifacts/price_v2/audit}"
 
 test-price:
 	PYTHONPATH=src $(PY) -m unittest discover -s tests
