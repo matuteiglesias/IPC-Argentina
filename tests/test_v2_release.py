@@ -18,12 +18,13 @@ def sha(raw):
 
 
 def pinned(source_id, filename, raw):
+    content_type = "application/json" if filename.endswith((".json", ".php")) else "text/csv"
     return {
         "source_id": source_id,
         "status": "pinned",
         "resolved_url": "fixture://" + filename,
         "retrieved_at_utc": "2026-08-31T00:00:00+00:00",
-        "headers": {"content-type": "text/csv"},
+        "headers": {"content-type": content_type},
         "byte_size": len(raw),
         "sha256": sha(raw),
         "snapshot_path": "snapshots/" + filename,
@@ -43,16 +44,16 @@ class V2ReleaseTests(unittest.TestCase):
             "COICOP;Descripción;dic-15;ene-16;feb-16",
             ";NIVEL GENERAL;100,00;102,00;104,04",
         ]).encode("cp1252")
-        neuquen = b"Descripcion,dic-15,ene-16,feb-16\nNivel general,200,206,210.12\n"
+        neuquen = b'[{"anio":"2015","mes":"12","indice":"200"},{"anio":"2016","mes":"1","indice":"206"},{"anio":"2016","mes":"2","indice":"210.12"}]'
         (snapshots / "cordoba.csv").write_bytes(cordoba)
-        (snapshots / "neuquen.csv").write_bytes(neuquen)
+        (snapshots / "neuquen.php").write_bytes(neuquen)
         entries = [
             {"source_id": "indec_ipc_gba_historical", "status": "unavailable", "warning_code": "source_unavailable"},
             {"source_id": "indec_ipc_national", "status": "unavailable", "warning_code": "source_unavailable"},
             {"source_id": "idecba_ipc_level_general_empalmed", "status": "unavailable", "warning_code": "source_unavailable"},
             pinned("cordoba_ipc", "cordoba.csv", cordoba),
             {"source_id": "san_luis_ipc_provincial", "status": "unavailable", "warning_code": "source_unavailable"},
-            pinned("neuquen_ipc_provincial", "neuquen.csv", neuquen),
+            pinned("neuquen_ipc_provincial", "neuquen.php", neuquen),
         ]
         lock = {"schema": "price-source-lock/v1", "registry_id": "fixture", "entries": entries}
         (root / "source_lock.json").write_text(json.dumps(lock, indent=2, sort_keys=True) + "\n")
