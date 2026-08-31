@@ -1,6 +1,7 @@
-import math, tempfile, unittest
+import hashlib, math, tempfile, unittest
 from pathlib import Path
 from arg_price.composite import build
+from arg_price.sources import check_lock
 
 ORDER=["a","b"]
 def row(s,p,v): return {"source_id":s,"period":p,"source_index":v}
@@ -19,5 +20,18 @@ class CompositeTests(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,"no_source"): build([row("a","2016-01-01",1),row("a","2016-03-01",2)],ORDER)
  def test_source_order_identity(self): self.assertEqual(build(self.data(),ORDER)[0][0]["method_id"],"research.argentina-price-composite/legacy-compatible-v1")
  def test_stable(self): self.assertEqual(build(self.data(),ORDER),build(self.data(),ORDER))
+
+class SourceLockTests(unittest.TestCase):
+ def test_relative_snapshot_is_portable(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp); snap=root/"snapshots/source.csv"; snap.parent.mkdir(); raw=b"period,value\n2026-07,1\n"; snap.write_bytes(raw)
+   lock={"entries":[{"source_id":"source","status":"pinned","snapshot_path":"snapshots/source.csv","byte_size":len(raw),"sha256":hashlib.sha256(raw).hexdigest()}]}
+   self.assertEqual(check_lock(lock,root),[])
+   snap.write_bytes(raw+b"tampered")
+   self.assertEqual(check_lock(lock,root),["checksum_mismatch:source"])
+ def test_relative_snapshot_cannot_escape_lock_root(self):
+  lock={"entries":[{"source_id":"source","status":"pinned","snapshot_path":"../source.csv","byte_size":1,"sha256":"x"}]}
+  with tempfile.TemporaryDirectory() as tmp:
+   self.assertEqual(check_lock(lock,Path(tmp)),["unsafe_snapshot_path:source"])
 
 if __name__=="__main__": unittest.main()
