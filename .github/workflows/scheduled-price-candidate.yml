@@ -83,12 +83,12 @@ jobs:
             find build/price_sources artifacts/price_v2 -maxdepth 5 -type f -printf '%p\n' 2>/dev/null | sort | head -300 || true
             echo '```'
             if [ -d artifacts/price_v2/consensus ]; then
-              latest=$$(find artifacts/price_v2/consensus -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
-              if [ -n "$$latest" ] && [ -f "$$latest/qa.json" ]; then
+              latest=$(find artifacts/price_v2/consensus -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
+              if [ -n "$latest" ] && [ -f "$latest/qa.json" ]; then
                 echo
                 echo "### Latest consensus QA"
                 echo '```json'
-                cat "$$latest/qa.json"
+                cat "$latest/qa.json"
                 echo '```'
               fi
             fi
