@@ -1,6 +1,6 @@
 """Source-specific snapshot parsers producing the canonical source table."""
 from __future__ import annotations
-import csv, io, re, unicodedata
+import csv, io, json, re, unicodedata
 from pathlib import Path
 
 COLUMNS=("source_id","period","source_index","source_base_or_vintage","value_status","source_snapshot_sha256","parser_id")
@@ -65,6 +65,28 @@ def cordoba_csv(raw, meta):
         raw_value=(selected.get(field) or "").strip()
         if raw_value:
             rows.append(_row(meta,period,raw_value,f"official Córdoba empalmed/source-declared base; encoding={encoding}"))
+    return validate(rows)
+
+def neuquen_calculator_json(raw, meta):
+    """Parse the official Neuquén calculator API's level-general index payload."""
+    try:
+        data=json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError,json.JSONDecodeError) as exc:
+        raise ValueError("unparseable_pinned_source:neuquen_invalid_json") from exc
+    if not isinstance(data,list) or not data:
+        raise ValueError("unparseable_pinned_source:neuquen_payload_not_nonempty_list")
+    expected={"anio","mes","indice"}; rows=[]
+    for index,item in enumerate(data):
+        if not isinstance(item,dict) or set(item)!=expected:
+            raise ValueError(f"unparseable_pinned_source:neuquen_schema_row:{index}")
+        year=str(item["anio"]).strip(); month=str(item["mes"]).strip(); value=str(item["indice"]).strip()
+        if not re.fullmatch(r"\d{4}",year):
+            raise ValueError(f"unparseable_pinned_source:neuquen_year_row:{index}")
+        if not re.fullmatch(r"\d{1,2}",month) or not 1<=int(month)<=12:
+            raise ValueError(f"unparseable_pinned_source:neuquen_month_row:{index}")
+        if not value:
+            raise ValueError(f"unparseable_pinned_source:neuquen_index_row:{index}")
+        rows.append(_row(meta,f"{int(year):04d}-{int(month):02d}-01",value,"official Neuquén empalmed level-general series; modern base 2022=100"))
     return validate(rows)
 
 def generic_wide_csv(raw, meta):
@@ -136,7 +158,7 @@ def parse_snapshot(path: Path, meta: dict) -> list[dict]:
     sid=meta["source_id"]; suffix=path.suffix.lower(); raw=path.read_bytes()
     if sid=="indec_ipc_national": return national_csv(raw,meta)
     if sid=="cordoba_ipc" and suffix==".csv": return cordoba_csv(raw,meta)
-    if sid=="neuquen_ipc_provincial" and suffix==".csv": return generic_wide_csv(raw,meta)
+    if sid=="neuquen_ipc_provincial" and suffix in (".php",".json"): return neuquen_calculator_json(raw,meta)
     if suffix in (".xls",".xlsx"): return workbook(path,meta)
     raise ValueError(f"unparseable_pinned_source:unsupported_format:{sid}:{suffix}")
 
