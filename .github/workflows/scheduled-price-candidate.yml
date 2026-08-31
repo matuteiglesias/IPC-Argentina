@@ -100,8 +100,14 @@ jobs:
               --notes "Immutable candidate transport for research.argentina-monetary-conversion/v1. Candidate publication is not scientific approval."
           fi
 
-      - name: Apply scheduled or explicitly requested maturity gate
-        if: github.event_name == 'schedule' || inputs.require_approved_latest
+      - name: Assess scheduled candidate maturity
+        id: scheduled_maturity
+        if: github.event_name == 'schedule'
+        continue-on-error: true
+        run: make price-v2-approved-check
+
+      - name: Apply explicitly requested maturity gate
+        if: github.event_name == 'workflow_dispatch' && inputs.require_approved_latest
         run: make price-v2-approved-check
 
       - name: Summarize maintenance state
@@ -112,10 +118,11 @@ jobs:
             echo
             echo "Event: **${{ github.event_name }}**"
             echo "Manual mode: **${{ inputs.mode || 'scheduled-full-v2' }}**"
+            echo "Scheduled maturity assessment: **${{ steps.scheduled_maturity.outcome || 'not-run' }}**"
             echo
             echo "The fixed panel is INDEC, CABA, Córdoba, San Luis and Neuquén. Missing members lower coverage; they are never replaced dynamically by another province."
             echo
-            echo "A validated conversion candidate is published as an immutable prerelease before the separate latest-period maturity gate. Candidate publication never upgrades scientific status."
+            echo "A validated conversion candidate is published as an immutable prerelease before the separate latest-period maturity assessment. Scheduled thin coverage remains visible but does not fail candidate publication; an explicitly requested approval gate remains fail-closed. Candidate publication never upgrades scientific status."
             echo
             echo '```text'
             find build/price_sources artifacts/price_v2 build/publication -maxdepth 5 -type f -printf '%p\n' 2>/dev/null | sort | head -300 || true
