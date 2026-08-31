@@ -52,7 +52,31 @@ def probe(registry: dict) -> dict:
             results.append({"source_id":source["source_id"],"status":"unavailable","warning_code":"source_unavailable","evidence":f"{type(exc).__name__}: {exc}"})
     return {"schema":"price-source-probe/v1","results":results}
 
+def _portable_snapshot_path(target: Path, lock_path: Path) -> str:
+    """Prefer a path relative to the lock so lock + snapshots can move together."""
+    target = target.resolve()
+    base = lock_path.parent.resolve()
+    try:
+        return target.relative_to(base).as_posix()
+    except ValueError:
+        # Compatibility escape hatch for callers intentionally storing the cache
+        # elsewhere. New scheduled releases colocate snapshots under the lock root.
+        return str(target)
+
+def _resolve_snapshot_path(value: str, base_dir: Path | None) -> tuple[Path | None, str | None]:
+    path = Path(value)
+    if path.is_absolute():
+        return path, None
+    if base_dir is None:
+        return path, None
+    base = Path(base_dir).resolve()
+    resolved = (base / path).resolve()
+    if resolved != base and base not in resolved.parents:
+        return None, "unsafe_snapshot_path"
+    return resolved, None
+
 def lock(registry: dict, cache: Path, output: Path) -> dict:
+    output = output.resolve(); cache = cache.resolve()
     cache.mkdir(parents=True, exist_ok=True); entries=[]
     for source in registry["sources"]:
         sid=source["source_id"]
@@ -60,18 +84,25 @@ def lock(registry: dict, cache: Path, output: Path) -> dict:
             url, evidence=discover(source); raw, headers, final=_get(url)
             digest=hashlib.sha256(raw).hexdigest(); suffix=Path(final.split("?")[0]).suffix or ".bin"
             target=cache/f"{sid}-{digest}{suffix}"; target.write_bytes(raw)
-            entries.append({"source_id":sid,"status":"pinned","resolved_url":final,"retrieved_at_utc":datetime.now(timezone.utc).isoformat(),"headers":{"content-type":headers.get("Content-Type"),"last-modified":headers.get("Last-Modified"),"etag":headers.get("ETag")},"byte_size":len(raw),"sha256":digest,"snapshot_path":str(target),"parser_id":sid+"/v1","discovery_evidence":evidence,"source_base_or_vintage":"adapter-inspected"})
+            entries.append({"source_id":sid,"status":"pinned","resolved_url":final,"retrieved_at_utc":datetime.now(timezone.utc).isoformat(),"headers":{"content-type":headers.get("Content-Type"),"last-modified":headers.get("Last-Modified"),"etag":headers.get("ETag")},"byte_size":len(raw),"sha256":digest,"snapshot_path":_portable_snapshot_path(target, output),"parser_id":sid+"/v1","discovery_evidence":evidence,"source_base_or_vintage":"adapter-inspected"})
         except Exception as exc:
             entries.append({"source_id":sid,"status":"unavailable","warning_code":"source_unavailable","evidence":f"{type(exc).__name__}: {exc}"})
     result={"schema":"price-source-lock/v1","registry_id":registry["registry_id"],"entries":entries}
     output.parent.mkdir(parents=True,exist_ok=True); output.write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     return result
 
-def check_lock(lock_data: dict) -> list[str]:
+def check_lock(lock_data: dict, base_dir: Path | None = None) -> list[str]:
     errors=[]; pinned=0
     for e in lock_data["entries"]:
         if e["status"] != "pinned": continue
-        pinned+=1; p=Path(e["snapshot_path"])
-        if not p.is_file() or len(p.read_bytes()) != e["byte_size"] or hashlib.sha256(p.read_bytes()).hexdigest()!=e["sha256"]: errors.append("checksum_mismatch:"+e["source_id"])
+        pinned+=1
+        p, path_error = _resolve_snapshot_path(e["snapshot_path"], base_dir)
+        if path_error:
+            errors.append(path_error+":"+e["source_id"]); continue
+        if p is None or not p.is_file():
+            errors.append("checksum_mismatch:"+e["source_id"]); continue
+        raw = p.read_bytes()
+        if len(raw) != e["byte_size"] or hashlib.sha256(raw).hexdigest()!=e["sha256"]:
+            errors.append("checksum_mismatch:"+e["source_id"])
     if not pinned: errors.append("no_pinned_source")
     return errors
