@@ -1,0 +1,5 @@
+# Runtime-only dependencies for official workbook adapters used by the scheduled source build.
+# Keep major versions bounded; source bytes + parser code remain the scientific identity.
+pandas>=2.2,<3.0
+openpyxl>=3.1,<4.0
+xlrd>=2.0,<3.0
