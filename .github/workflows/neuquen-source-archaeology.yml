@@ -11,62 +11,30 @@ permissions:
 jobs:
   inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Inspect public IPC web transports
+      - name: Inspect calculator API payload
         run: |
           python - <<'PY'
-          import html
-          import re
-          import urllib.parse
+          import json
           import urllib.request
-
-          UA = 'IPC-Argentina-source-archaeology/1.0'
-          def get(url):
-              req=urllib.request.Request(url, headers={'User-Agent':UA})
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  raw=r.read()
-                  print('FETCH', url, '->', r.geturl(), 'bytes', len(raw), 'type', r.headers.get('Content-Type'))
-                  return raw.decode('utf-8','replace'), r.geturl()
-
-          pages=[
-              'https://www.estadisticaneuquen.gob.ar/',
-              'https://www.estadisticaneuquen.gob.ar/apps/calculadora/',
-              'https://www.estadisticaneuquen.gob.ar/apps/anuario_app/?capitulo_id=4&view=content',
-          ]
-          scripts=[]
-          for url in pages:
-              text, final=get(url)
-              print('\n=== LINKS', final, '===')
-              for href in re.findall(r'''(?:href|src)=["']([^"']+)["']''', text, re.I):
-                  absolute=urllib.parse.urljoin(final, html.unescape(href))
-                  low=absolute.lower()
-                  if any(k in low for k in ('ipc','precio','calcul','api','json','csv','xls','js')):
-                      print(absolute)
-                  if re.search(r'\.js(?:\?|$)', low):
-                      scripts.append(absolute)
-              if 'anuario_app' in url:
-                  compact=re.sub(r'\s+',' ',text)
-                  p=compact.lower().find('serie empalmada')
-                  if p>=0:
-                      print('\n=== ANUARIO TARGET CONTEXT ===')
-                      print(compact[max(0,p-1000):p+2500])
-          print('\n=== SCRIPT STRING PROBE ===')
-          for js in dict.fromkeys(scripts):
-              try:
-                  text, final=get(js)
-              except Exception as exc:
-                  print('ERR', js, repr(exc)); continue
-              hits=[]
-              for match in re.finditer(r'.{0,180}(?:ipc|precio|\.csv|\.xlsx|\.xls|/api/|axios|fetch\().{0,300}', text, re.I|re.S):
-                  value=re.sub(r'\s+',' ',match.group(0))
-                  if value not in hits:
-                      hits.append(value)
-              if hits:
-                  print('\nJS', final)
-                  for hit in hits[:30]: print(hit[:600])
+          url='https://www.estadisticaneuquen.gob.ar/apps/calculadora/php/api.php'
+          req=urllib.request.Request(url,headers={'User-Agent':'IPC-Argentina-source-archaeology/1.0','Referer':'https://www.estadisticaneuquen.gob.ar/apps/calculadora/'})
+          with urllib.request.urlopen(req,timeout=30) as r:
+              raw=r.read()
+              print('status',r.status,'final',r.geturl(),'type',r.headers.get('Content-Type'),'bytes',len(raw))
+          data=json.loads(raw)
+          print('payload_type',type(data).__name__,'rows',len(data) if isinstance(data,list) else None)
+          if isinstance(data,list) and data:
+              print('keys',sorted(data[0]))
+              print('first',json.dumps(data[0],ensure_ascii=False,sort_keys=True))
+              print('last',json.dumps(data[-1],ensure_ascii=False,sort_keys=True))
+              print('tail')
+              for row in data[-15:]: print(json.dumps(row,ensure_ascii=False,sort_keys=True))
+          else:
+              print(json.dumps(data,ensure_ascii=False,sort_keys=True)[:10000])
           PY
