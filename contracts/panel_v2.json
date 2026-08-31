@@ -1,0 +1,109 @@
+{
+  "schema": "argentina-price-consensus-panel/v2",
+  "method_id": "research.argentina-price-consensus/curated-official-panel-v2",
+  "normalized_artifact_type": "publicdata.argentina-price-sources/v1",
+  "consensus_artifact_type": "research.argentina-price-consensus/v2",
+  "conversion_artifact_type": "research.argentina-monetary-conversion/v1",
+  "monetary_reference_id": "research.argentina-price-consensus/curated-official-panel-v2@2016-01=100",
+  "analytical_base_period": "2016-01-01",
+  "aggregation": {
+    "primary_statistic": "arithmetic_mean_monthly_inflation_pct",
+    "member_weighting": "equal",
+    "dynamic_source_substitution": false,
+    "diagnostics": [
+      "median_monthly_inflation_pct",
+      "min_monthly_inflation_pct",
+      "max_monthly_inflation_pct",
+      "population_std_monthly_inflation_pct"
+    ]
+  },
+  "coverage_classes": {
+    "5": "full_panel",
+    "4": "strong_coverage",
+    "3": "acceptable_coverage",
+    "2": "thin_coverage"
+  },
+  "approved_mode_minimum_contributors": 3,
+  "minimum_emitted_contributors": 2,
+  "panel_members": [
+    {
+      "member_id": "indec",
+      "label": "INDEC",
+      "source_ids": [
+        "indec_ipc_gba_historical",
+        "indec_ipc_national"
+      ],
+      "eligibility": [
+        {
+          "source_id": "indec_ipc_gba_historical",
+          "start": null,
+          "end": "2006-12-01",
+          "status": "eligible"
+        },
+        {
+          "source_id": "indec_ipc_gba_historical",
+          "start": "2007-01-01",
+          "end": "2015-12-01",
+          "status": "excluded_by_policy"
+        },
+        {
+          "source_id": "indec_ipc_national",
+          "start": null,
+          "end": "2015-12-01",
+          "status": "excluded_by_policy"
+        },
+        {
+          "source_id": "indec_ipc_national",
+          "start": "2016-01-01",
+          "end": "2016-12-01",
+          "status": "transition_unapproved"
+        },
+        {
+          "source_id": "indec_ipc_national",
+          "start": "2017-01-01",
+          "end": null,
+          "status": "eligible"
+        }
+      ]
+    },
+    {
+      "member_id": "caba",
+      "label": "CABA",
+      "source_ids": ["idecba_ipc_level_general_empalmed"],
+      "eligibility": [{"source_id": "idecba_ipc_level_general_empalmed", "start": null, "end": null, "status": "eligible"}]
+    },
+    {
+      "member_id": "cordoba",
+      "label": "Córdoba",
+      "source_ids": ["cordoba_ipc"],
+      "eligibility": [{"source_id": "cordoba_ipc", "start": null, "end": null, "status": "eligible"}]
+    },
+    {
+      "member_id": "san_luis",
+      "label": "San Luis",
+      "source_ids": ["san_luis_ipc_provincial"],
+      "eligibility": [{"source_id": "san_luis_ipc_provincial", "start": null, "end": null, "status": "eligible"}]
+    },
+    {
+      "member_id": "neuquen",
+      "label": "Neuquén",
+      "source_ids": ["neuquen_ipc_provincial"],
+      "eligibility": [{"source_id": "neuquen_ipc_provincial", "start": null, "end": null, "status": "eligible"}]
+    }
+  ],
+  "status_semantics": {
+    "eligible": "source-period may contribute when a valid month-over-month observation exists",
+    "excluded_by_policy": "observation is retained but cannot contribute to this method version",
+    "transition_unapproved": "observation is retained but automatic splice is forbidden",
+    "unavailable": "panel member has no usable source observation for the period",
+    "break_unresolved": "a source or methodological break prevents a valid month-over-month comparison"
+  },
+  "invariants": [
+    "panel membership is fixed by method version",
+    "no automatic province substitution",
+    "source observations are never relabeled as consensus observations",
+    "excluded observations remain inspectable",
+    "projection cannot extend the observed consensus cutoff",
+    "candidate status never implies reviewed or approved"
+  ]
+}

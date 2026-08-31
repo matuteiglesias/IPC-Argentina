@@ -1,8 +1,8 @@
 {
-  "schema_version": 1,
-  "registry_id": "registry:research.argentina-price-sources@1",
-  "recorded_at_utc": "2026-08-04T10:17:00Z",
-  "purpose": "Recover the exact source graph used by the legacy analytical composite and provide stable discovery surfaces for a candidate v1 refresh.",
+  "schema_version": 2,
+  "registry_id": "registry:research.argentina-price-sources@2",
+  "recorded_at_utc": "2026-08-31T01:35:00Z",
+  "purpose": "Preserve the legacy source graph while adding the fixed five-member official panel required by curated-official-panel-v2.",
   "sources": [
     {
       "source_id": "indec_ipc_gba_historical",
@@ -101,7 +101,34 @@
       "operational_status": "dynamic_discovery_required",
       "notes": [
         "The official San Luis site exposes monthly reports but no obvious stable machine-readable historical-series endpoint.",
-        "The legacy code intentionally discovered the IERIC workbook link from the stable provincial series page. Preserve this as a mirror with explicit provenance, not as the primary statistical authority."
+        "The IERIC workbook is a machine-readable mirror only; San Luis remains the statistical authority."
+      ]
+    },
+    {
+      "source_id": "neuquen_ipc_provincial",
+      "authority": "Direccion Provincial de Estadistica y Censos de la Provincia del Neuquen",
+      "jurisdiction": "Neuquen",
+      "role": "provincial_bridge_and_current_input",
+      "frequency": "monthly",
+      "landing_page": "https://www.estadisticaneuquen.gob.ar/#/ipc",
+      "series_page": "https://www.estadisticaneuquen.gob.ar/apps/anuario_app/?capitulo_id=4&view=content",
+      "methodology_url": "https://www.estadisticaneuquen.gob.ar/static/archivos/Publicaciones/IPC/metodologia_ipc_neuquen.pdf",
+      "retrieval": {
+        "kind": "discover_neuquen_empalmed_download",
+        "anchor_text": "Indice de precios al consumidor, nivel general. Serie empalmada",
+        "preferred_formats": ["xlsx", "xls", "csv"]
+      },
+      "authority_class": "official_source",
+      "operational_status": "bounded_dynamic_discovery_candidate",
+      "source_semantics": {
+        "legacy_method": "provincial IPC begun in 1980 and continued as a provincial program after 2000",
+        "modern_base": "2022=100",
+        "modern_method": "weighted fixed-basket Laspeyres using ENGHo 2017/2018",
+        "official_empalme": true
+      },
+      "notes": [
+        "The province publishes an official empalmed level-general series and current IPC methodology.",
+        "The adapter must fail closed if the series page no longer exposes one unambiguous empalmed download; do not replace it dynamically with another province."
       ]
     }
   ],
@@ -112,12 +139,21 @@
     "san_luis_ipc_provincial",
     "indec_ipc_gba_historical"
   ],
+  "curated_official_panel_v2_sources": [
+    "indec_ipc_gba_historical",
+    "indec_ipc_national",
+    "idecba_ipc_level_general_empalmed",
+    "cordoba_ipc",
+    "san_luis_ipc_provincial",
+    "neuquen_ipc_provincial"
+  ],
   "discovery_policy": {
     "prefer_stable_catalog_or_series_pages": true,
     "record_resolved_file_url": true,
     "record_retrieval_timestamp": true,
     "hash_downloaded_bytes": true,
     "do_not_require_every_source_for_every_month": true,
-    "require_at_least_one_valid_source_per_emitted_month": true
+    "require_at_least_one_valid_source_per_emitted_month": true,
+    "dynamic_panel_substitution": false
   }
 }

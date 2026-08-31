@@ -1,6 +1,6 @@
 """Bounded discovery, download, and pinning of declared price sources."""
 from __future__ import annotations
-import hashlib, json, re
+import hashlib, html as html_lib, json, re, unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin
@@ -11,6 +11,20 @@ USER_AGENT = "IPC-Argentina-candidate-builder/1.0 (research artifact; bounded so
 def _get(url: str, timeout: int = 30) -> tuple[bytes, dict, str]:
     with urlopen(Request(url, headers={"User-Agent": USER_AGENT}), timeout=timeout) as r:
         return r.read(), dict(r.headers.items()), r.geturl()
+
+def _plain(value: str) -> str:
+    value = html_lib.unescape(re.sub(r"<[^>]+>", " ", value))
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"\s+", " ", value).strip().lower()
+
+def _spreadsheet_links(raw_html: str) -> list[tuple[str, str]]:
+    pairs = []
+    for match in re.finditer(r'''<a\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''', raw_html, re.I | re.S):
+        href, body = match.group(1), match.group(2)
+        clean = href.split("?", 1)[0].lower()
+        if clean.endswith((".xlsx", ".xls", ".csv")):
+            pairs.append((href, _plain(body)))
+    return pairs
 
 def discover(source: dict) -> tuple[str, list[str]]:
     retrieval = source.get("retrieval", {})
@@ -29,14 +43,48 @@ def discover(source: dict) -> tuple[str, list[str]]:
         if not resource: raise ValueError("no compatible empalmed CSV resource")
         evidence.append(retrieval["ckan_package_api"])
         return resource["url"], evidence
+    if kind == "discover_neuquen_empalmed_download":
+        page = source["series_page"]
+        raw, _, final = _get(page)
+        text = raw.decode("utf-8", "replace")
+        anchor = _plain(retrieval.get("anchor_text", "indice de precios al consumidor nivel general serie empalmada"))
+        links = _spreadsheet_links(text)
+        # Prefer a direct link whose anchor/href explicitly identifies the empalmed IPC.
+        explicit = []
+        for href, label in links:
+            signature = _plain(href + " " + label)
+            if "ipc" in signature and ("empalm" in signature or "nivel general" in signature):
+                explicit.append(href)
+        explicit = list(dict.fromkeys(explicit))
+        if len(explicit) == 1:
+            evidence.append(final)
+            return urljoin(final, explicit[0]), evidence
+        if len(explicit) > 1:
+            raise ValueError("ambiguous_neuquen_empalmed_download")
+        # Some versions of the anuario render a generic `Descargar` anchor after
+        # the series label. Bound the search to the first block following the
+        # exact label rather than selecting an arbitrary spreadsheet on the page.
+        plain_page = _plain(text)
+        anchor_pos = plain_page.find(anchor)
+        if anchor_pos >= 0:
+            candidates = [href for href, label in links if "descargar" in label]
+            if len(candidates) == 1:
+                evidence.append(final)
+                return urljoin(final, candidates[0]), evidence
+        raise ValueError("neuquen_empalmed_download_not_unambiguously_discoverable")
+
     page = source.get("series_page") or source.get("machine_readable_mirror", {}).get("landing_page")
+    if not page:
+        raise ValueError(f"unsupported_retrieval_kind:{kind}")
     raw, _, final = _get(page)
     html = raw.decode("utf-8", "replace")
     links = re.findall(r'''href=["']([^"']+)["']''', html, re.I)
     if source["source_id"].startswith("idecba"):
-        matches = [x for x in links if x.lower().endswith((".xlsx", ".xls")) and "ipc" in x.lower()]
-    else:
+        matches = [x for x in links if x.lower().split("?",1)[0].endswith((".xlsx", ".xls")) and "ipc" in x.lower()]
+    elif source["source_id"] == "san_luis_ipc_provincial":
         matches = [x for x in links if "IPC-Prov-San-Luis.xlsx".lower() in x.lower()]
+    else:
+        raise ValueError(f"unsupported_series_page_adapter:{source['source_id']}")
     if not matches: raise ValueError("download anchor not found on series page")
     evidence.append(final)
     return urljoin(final, matches[-1]), evidence

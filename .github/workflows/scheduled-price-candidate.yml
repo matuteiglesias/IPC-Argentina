@@ -1,7 +1,21 @@
-name: Scheduled price-source convergence
+name: Scheduled IPC v2 convergence
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: How far to run the governed price chain
+        required: true
+        default: full-v2
+        type: choice
+        options:
+          - full-v2
+          - source-only
+      require_approved_latest:
+        description: Fail unless the latest consensus month has at least three eligible panel members
+        required: true
+        default: false
+        type: boolean
   schedule:
     - cron: "37 9 * * 1"
 
@@ -9,13 +23,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: scheduled-price-source-convergence
+  group: scheduled-price-v2-convergence
   cancel-in-progress: false
 
 jobs:
   candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,75 +39,68 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Verify committed snapshot
-        run: make check
+      - name: Verify offline snapshot and price contracts
+        run: |
+          make check
+          make test-price
 
-      - name: Discover and lock available source bytes once
+      - name: Acquire exact declared source bytes once
         run: make price-source-lock
 
-      - name: Verify source lock
+      - name: Verify relocatable source lock
         run: make price-source-lock-check
 
-      - name: Require the current national anchor
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          lock = json.loads(Path("build/price_sources/source_lock.json").read_text())
-          entries = {entry["source_id"]: entry for entry in lock["entries"]}
-          national = entries.get("indec_ipc_national")
-          if not national or national.get("status") != "pinned":
-              raise SystemExit("current_national_anchor_unavailable: indec_ipc_national was not pinned")
-          print("current national IPC anchor pinned:", national["sha256"])
-          PY
+      - name: Install bounded workbook adapters
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
+        run: python -m pip install -r requirements-source.txt
 
-      - name: Build current candidate envelope
-        run: make price-candidate
+      - name: Build normalized sources, v2 consensus and conversion candidates
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
+        run: make price-v2-build SOURCE_LOCK=build/price_sources/source_lock.json
 
-      - name: Apply current consumer maturity gate
-        run: make price-candidate-check
+      - name: Independently validate all v2 candidate releases
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
+        run: make price-v2-check
 
-      - name: Require a source-backed candidate before calling convergence green
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          releases = sorted(Path("artifacts/price_releases").glob("*/manifest.json"))
-          if not releases:
-              raise SystemExit("price_candidate_missing")
-          manifest = json.loads(releases[-1].read_text())
-          qa = json.loads((releases[-1].parent / "qa.json").read_text())
-          warnings = set(manifest.get("warnings", []))
-          if qa.get("normalized_source_rows", 0) <= 0 or "historical_source_hash_not_retained" in warnings:
-              raise SystemExit(
-                  "source_backed_price_candidate_missing: live sources can be pinned, "
-                  "but candidate materialization still wraps the retained legacy composite"
-              )
-          print("source-backed price candidate eligible for downstream review")
-          PY
+      - name: Apply scheduled or explicitly requested maturity gate
+        if: github.event_name == 'schedule' || inputs.require_approved_latest
+        run: make price-v2-approved-check
 
       - name: Summarize maintenance state
         if: always()
         run: |
           {
-            echo "## Scheduled IPC candidate convergence"
+            echo "## IPC v2 convergence"
             echo
-            echo "This workflow executes one exact source discovery/download → lock → candidate → consumer-preflight path and requires the national current anchor. It does not probe and then re-download the same dynamic sources a second time."
+            echo "Event: **${{ github.event_name }}**"
+            echo "Manual mode: **${{ inputs.mode || 'scheduled-full-v2' }}**"
             echo
-            echo "A red source-backed-candidate gate is expected until live locked sources actually feed candidate materialization; it must not be hidden by the retained legacy fallback."
+            echo "The fixed panel is INDEC, CABA, Córdoba, San Luis and Neuquén. Missing members lower coverage; they are never replaced dynamically by another province."
+            echo
+            echo "Scheduled runs enforce the >=3-member latest-period maturity gate. Manual UI runs default to building/validating the complete candidate without making thin latest coverage a hard failure; enable the dispatch maturity option to exercise that gate explicitly."
             echo
             echo '```text'
-            find build/price_sources artifacts/price_releases -maxdepth 4 -type f -printf '%p\n' 2>/dev/null | sort | head -200 || true
+            find build/price_sources artifacts/price_v2 -maxdepth 5 -type f -printf '%p\n' 2>/dev/null | sort | head -300 || true
             echo '```'
+            if [ -d artifacts/price_v2/consensus ]; then
+              latest=$(find artifacts/price_v2/consensus -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
+              if [ -n "$latest" ] && [ -f "$latest/qa.json" ]; then
+                echo
+                echo "### Latest consensus QA"
+                echo '```json'
+                cat "$latest/qa.json"
+                echo '```'
+              fi
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload source and candidate evidence
+      - name: Upload exact source and v2 candidate evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ipc-maintenance-candidate
+          name: ipc-v2-maintenance-candidate
           path: |
             build/price_sources
-            artifacts/price_releases
+            artifacts/price_v2
           if-no-files-found: warn
           retention-days: 14
