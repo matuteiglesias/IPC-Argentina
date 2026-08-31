@@ -156,11 +156,14 @@ def build_all(
         coverage,
         ["panel_member_id", "source_id", "lock_status", "period_start", "period_end", "row_count", "eligible_row_count", "excluded_by_policy_row_count", "transition_unapproved_row_count"],
     )
+    # Cross-repo/re-run lineage is content addressed. Never persist the local
+    # runner path of the source lock: lock + snapshot transport is external to
+    # this release and can move without changing artifact identity.
     source_parent = {
         "schema": lock.get("schema"),
         "registry_id": lock.get("registry_id"),
         "source_lock_sha256": lock_hash,
-        "source_lock_locator": str(lock_path),
+        "source_lock_transport": "external_content_addressed_parent",
     }
     (normalized_root / "source_parent.json").write_bytes(canonical_json(source_parent))
     normalized_qa = {
