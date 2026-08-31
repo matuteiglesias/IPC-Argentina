@@ -23,6 +23,11 @@ def _safe_file(base: Path, name: str) -> Path | None:
     return path
 
 
+def _read_csv(path: Path) -> list[dict]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))
+
+
 def validate_release(base: Path, policy: dict, require_approved_latest: bool = False) -> list[str]:
     base = Path(base).resolve(); errors = []
     try:
@@ -52,7 +57,7 @@ def validate_release(base: Path, policy: dict, require_approved_latest: bool = F
         table = base / "normalized_sources.csv"
         if not table.is_file(): errors.append("normalized_sources_missing")
         else:
-            rows = list(csv.DictReader(table.open(encoding="utf-8")))
+            rows = _read_csv(table)
             allowed_sources = {sid for member in policy["panel_members"] for sid in member["source_ids"]}
             if not rows: errors.append("normalized_sources_empty")
             if any(r.get("source_id") not in allowed_sources for r in rows): errors.append("unbounded_source_in_normalized_release")
@@ -63,7 +68,7 @@ def validate_release(base: Path, policy: dict, require_approved_latest: bool = F
         table = base / "monthly_consensus.csv"
         if not table.is_file(): errors.append("monthly_consensus_missing")
         else:
-            rows = list(csv.DictReader(table.open(encoding="utf-8")))
+            rows = _read_csv(table)
             if not rows: errors.append("monthly_consensus_empty")
             for row in rows:
                 try:
@@ -87,7 +92,7 @@ def validate_release(base: Path, policy: dict, require_approved_latest: bool = F
         table = base / "monthly_conversion_factors.csv"
         if not table.is_file(): errors.append("conversion_table_missing")
         else:
-            rows = list(csv.DictReader(table.open(encoding="utf-8")))
+            rows = _read_csv(table)
             if not rows: errors.append("conversion_table_empty")
             for row in rows:
                 try:
