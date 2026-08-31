@@ -16,7 +16,7 @@ concurrency:
 jobs:
   snapshot-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -28,3 +28,6 @@ jobs:
 
       - name: Verify committed IPC snapshot
         run: make check
+
+      - name: Verify legacy and v2 price contracts
+        run: make test-price
