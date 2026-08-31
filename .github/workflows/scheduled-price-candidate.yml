@@ -1,13 +1,6 @@
 name: Scheduled IPC v2 convergence
 
 on:
-  # Temporary push hook makes the first durable-publication proof observable on
-  # merge. Remove it after the proof; the durable cadence remains Monday + UI.
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/scheduled-price-candidate.yml
   workflow_dispatch:
     inputs:
       mode:
@@ -58,19 +51,19 @@ jobs:
         run: make price-source-lock-check
 
       - name: Install bounded workbook adapters
-        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: python -m pip install -r requirements-source.txt
 
       - name: Build normalized sources, v2 consensus and conversion candidates
-        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: make price-v2-build SOURCE_LOCK=build/price_sources/source_lock.json
 
       - name: Independently validate all v2 candidate releases
-        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: make price-v2-check
 
       - name: Package immutable conversion candidate
-        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: |
           conversion=$(find artifacts/price_v2/conversion -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
           test -n "$conversion"
@@ -86,7 +79,7 @@ jobs:
           PY
 
       - name: Publish or verify immutable GitHub Release transport
-        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
