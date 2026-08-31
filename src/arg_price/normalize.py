@@ -24,9 +24,29 @@ def national_csv(raw, meta):
             rows.append(_row(meta,r["indice_tiempo"][:7]+"-01",r["ipc_ng_nacional"],"December 2016=100"))
     return validate(rows)
 
+def _decode_cordoba_csv(raw):
+    """Decode the declared Córdoba CSV without broad encoding guessing."""
+    try:
+        return raw.decode("utf-8-sig"), "utf-8-sig"
+    except UnicodeDecodeError:
+        # The current official CKAN empalmed CSV is Windows-1252/Latin-1 text.
+        # Keep this fallback source-specific rather than introducing a generic
+        # best-effort decoder across publisher artifacts.
+        return raw.decode("cp1252"), "cp1252"
+
 def cordoba_csv(raw, meta):
-    """Parse the official Córdoba wide CSV, preferring its `Nivel general` row."""
-    reader=csv.DictReader(io.StringIO(raw.decode("utf-8-sig")))
+    """Parse the official Córdoba wide CSV and its bounded publisher preamble."""
+    text, encoding = _decode_cordoba_csv(raw)
+    lines=text.splitlines()
+    header_candidates=[]
+    for index,line in enumerate(lines):
+        fields=[_plain(value) for value in line.split(";")[:3]]
+        if len(fields)>=2 and fields[0]=="coicop" and fields[1] in {"descripcion","description"}:
+            header_candidates.append(index)
+    if len(header_candidates)!=1:
+        raise ValueError(f"unparseable_pinned_source:cordoba_header_count:{len(header_candidates)}")
+    header_index=header_candidates[0]
+    reader=csv.DictReader(io.StringIO("\n".join(lines[header_index:])),delimiter=";")
     fields=reader.fieldnames or []
     month_fields=[(name,_period_from_spanish_column(name)) for name in fields]
     month_fields=[x for x in month_fields if x[1]]
@@ -36,13 +56,15 @@ def cordoba_csv(raw, meta):
         label=_plain(row.get("Descripcion") or row.get("Descripción") or row.get("descripcion") or "")
         code=_plain(row.get("COICOP") or row.get("Codigo") or row.get("Código") or "")
         if label in {"nivel general","general"} or "nivel general" in label or code in {"00","0","general"}:
-            selected=row; break
+            if selected is not None:
+                raise ValueError("unparseable_pinned_source:multiple_nivel_general_rows")
+            selected=row
     if selected is None: raise ValueError("unparseable_pinned_source:no_nivel_general_row")
     rows=[]
     for field,period in month_fields:
         raw_value=(selected.get(field) or "").strip()
         if raw_value:
-            rows.append(_row(meta,period,raw_value,"official Córdoba empalmed/source-declared base"))
+            rows.append(_row(meta,period,raw_value,f"official Córdoba empalmed/source-declared base; encoding={encoding}"))
     return validate(rows)
 
 def generic_wide_csv(raw, meta):

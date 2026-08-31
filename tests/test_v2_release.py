@@ -35,7 +35,14 @@ def pinned(source_id, filename, raw):
 class V2ReleaseTests(unittest.TestCase):
     def make_bundle(self, parent):
         root = Path(parent) / "bundle"; snapshots = root / "snapshots"; snapshots.mkdir(parents=True)
-        cordoba = b"Descripcion,dic-15,ene-16,feb-16\nNivel general,100,102,104.04\n"
+        cordoba = "\n".join([
+            "Índice de Precios al Consumidor de Córdoba. Nivel General;;;;",
+            "Índice mensual empalmado con la serie anterior;;;;",
+            "fixture period;;;;",
+            ";;;;",
+            "COICOP;Descripción;dic-15;ene-16;feb-16",
+            ";NIVEL GENERAL;100,00;102,00;104,04",
+        ]).encode("cp1252")
         neuquen = b"Descripcion,dic-15,ene-16,feb-16\nNivel general,200,206,210.12\n"
         (snapshots / "cordoba.csv").write_bytes(cordoba)
         (snapshots / "neuquen.csv").write_bytes(neuquen)

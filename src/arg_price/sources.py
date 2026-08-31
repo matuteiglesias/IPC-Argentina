@@ -132,7 +132,7 @@ def lock(registry: dict, cache: Path, output: Path) -> dict:
             url, evidence=discover(source); raw, headers, final=_get(url)
             digest=hashlib.sha256(raw).hexdigest(); suffix=Path(final.split("?")[0]).suffix or ".bin"
             target=cache/f"{sid}-{digest}{suffix}"; target.write_bytes(raw)
-            entries.append({"source_id":sid,"status":"pinned","resolved_url":final,"retrieved_at_utc":datetime.now(timezone.utc).isoformat(),"headers":{"content-type":headers.get("Content-Type"),"last-modified":headers.get("Last-Modified"),"etag":headers.get("ETag")},"byte_size":len(raw),"sha256":digest,"snapshot_path":_portable_snapshot_path(target, output),"parser_id":sid+"/v1","discovery_evidence":evidence,"source_base_or_vintage":"adapter-inspected"})
+            entries.append({"source_id":sid,"status":"pinned","resolved_url":final,"retrieved_at_utc":datetime.now(timezone.utc).isoformat(),"headers":{"content-type":headers.get("Content-Type"),"last-modified":headers.get("Last-Modified"),"etag":headers.get("ETag")},"byte_size":len(raw),"sha256":digest,"snapshot_path":_portable_snapshot_path(target, output),"parser_id":source.get("parser_id",sid+"/v1"),"discovery_evidence":evidence,"source_base_or_vintage":"adapter-inspected"})
         except Exception as exc:
             entries.append({"source_id":sid,"status":"unavailable","warning_code":"source_unavailable","evidence":f"{type(exc).__name__}: {exc}"})
     result={"schema":"price-source-lock/v1","registry_id":registry["registry_id"],"entries":entries}
