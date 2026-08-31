@@ -28,12 +28,7 @@ jobs:
       - name: Verify committed snapshot
         run: make check
 
-      - name: Probe declared live price sources
-        run: |
-          mkdir -p build/price_sources
-          make price-source-probe | tee build/price_sources/probe.log
-
-      - name: Lock available source bytes
+      - name: Discover and lock available source bytes once
         run: make price-source-lock
 
       - name: Verify source lock
@@ -83,7 +78,7 @@ jobs:
           {
             echo "## Scheduled IPC candidate convergence"
             echo
-            echo "This workflow executes the real source-probe → lock → candidate → consumer-preflight path and requires the national current anchor."
+            echo "This workflow executes one exact source discovery/download → lock → candidate → consumer-preflight path and requires the national current anchor. It does not probe and then re-download the same dynamic sources a second time."
             echo
             echo "A red source-backed-candidate gate is expected until live locked sources actually feed candidate materialization; it must not be hidden by the retained legacy fallback."
             echo
