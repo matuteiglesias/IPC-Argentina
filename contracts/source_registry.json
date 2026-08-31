@@ -112,14 +112,17 @@
       "frequency": "monthly",
       "landing_page": "https://www.estadisticaneuquen.gob.ar/#/ipc",
       "series_page": "https://www.estadisticaneuquen.gob.ar/apps/anuario_app/?capitulo_id=4&view=content",
+      "calculator_page": "https://www.estadisticaneuquen.gob.ar/apps/calculadora/",
       "methodology_url": "https://www.estadisticaneuquen.gob.ar/static/archivos/Publicaciones/IPC/metodologia_ipc_neuquen.pdf",
       "retrieval": {
-        "kind": "discover_neuquen_empalmed_download",
-        "anchor_text": "Indice de precios al consumidor, nivel general. Serie empalmada",
-        "preferred_formats": ["xlsx", "xls", "csv"]
+        "kind": "direct_file",
+        "url": "https://www.estadisticaneuquen.gob.ar/apps/calculadora/php/api.php",
+        "payload_type": "application/json",
+        "expected_fields": ["anio", "mes", "indice"]
       },
+      "parser_id": "neuquen_ipc_provincial/calculator-json-v1",
       "authority_class": "official_source",
-      "operational_status": "bounded_dynamic_discovery_candidate",
+      "operational_status": "stable_official_calculator_json_api",
       "source_semantics": {
         "legacy_method": "provincial IPC begun in 1980 and continued as a provincial program after 2000",
         "modern_base": "2022=100",
@@ -127,8 +130,9 @@
         "official_empalme": true
       },
       "notes": [
-        "The province publishes an official empalmed level-general series and current IPC methodology.",
-        "The adapter must fail closed if the series page no longer exposes one unambiguous empalmed download; do not replace it dynamically with another province."
+        "The official calculator consumes a first-party JSON endpoint containing observed level-general index values rather than rounded monthly variations.",
+        "The live payload was verified on 2026-08-31 as a list of rows with exactly anio, mes and indice; July 2026 is present as index 1619.70.",
+        "The Anuario independently identifies the level-general empalmed series and workbook AE_040101_G040101.xlsx; it is retained as provenance evidence rather than the active machine transport."
       ]
     }
   ],

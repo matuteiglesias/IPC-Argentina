@@ -1,6 +1,6 @@
 import unittest
 
-from arg_price.normalize import cordoba_csv
+from arg_price.normalize import cordoba_csv, neuquen_calculator_json
 
 
 class CordobaLiveShapeTests(unittest.TestCase):
@@ -33,6 +33,28 @@ class CordobaLiveShapeTests(unittest.TestCase):
         text = "COICOP;Descripción;ene-25\n;NIVEL GENERAL;100\nCOICOP;Descripción;feb-25\n;NIVEL GENERAL;101\n"
         with self.assertRaisesRegex(ValueError, "cordoba_header_count:2"):
             cordoba_csv(text.encode("utf-8"), self.meta())
+
+
+class NeuquenLiveShapeTests(unittest.TestCase):
+    def meta(self):
+        return {
+            "source_id": "neuquen_ipc_provincial",
+            "sha256": "fixture-sha",
+            "parser_id": "neuquen_ipc_provincial/calculator-json-v1",
+        }
+
+    def test_calculator_payload_maps_observed_levels_exactly(self):
+        raw = b'[{"anio":"2026","mes":"5","indice":"1549.30"},{"anio":"2026","mes":"6","indice":"1583.00"},{"anio":"2026","mes":"7","indice":"1619.70"}]'
+        rows = neuquen_calculator_json(raw, self.meta())
+        self.assertEqual([r["period"] for r in rows], ["2026-05-01", "2026-06-01", "2026-07-01"])
+        self.assertEqual([r["source_index"] for r in rows], [1549.30, 1583.00, 1619.70])
+        self.assertTrue(all(r["value_status"] == "observed" for r in rows))
+        self.assertTrue(all("2022=100" in r["source_base_or_vintage"] for r in rows))
+
+    def test_calculator_payload_fails_closed_on_schema_drift(self):
+        raw = b'[{"anio":"2026","mes":"7","indice":"1619.70","variacion":"2.3"}]'
+        with self.assertRaisesRegex(ValueError, "neuquen_schema_row:0"):
+            neuquen_calculator_json(raw, self.meta())
 
 
 if __name__ == "__main__":
