@@ -1,6 +1,13 @@
 name: Scheduled IPC v2 convergence
 
 on:
+  # Temporary push hook makes the first durable-publication proof observable on
+  # merge. Remove it after the proof; the durable cadence remains Monday + UI.
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/scheduled-price-candidate.yml
   workflow_dispatch:
     inputs:
       mode:
@@ -20,7 +27,7 @@ on:
     - cron: "37 9 * * 1"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: scheduled-price-v2-convergence
@@ -51,16 +58,54 @@ jobs:
         run: make price-source-lock-check
 
       - name: Install bounded workbook adapters
-        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
+        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
         run: python -m pip install -r requirements-source.txt
 
       - name: Build normalized sources, v2 consensus and conversion candidates
-        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
+        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
         run: make price-v2-build SOURCE_LOCK=build/price_sources/source_lock.json
 
       - name: Independently validate all v2 candidate releases
-        if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
+        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
         run: make price-v2-check
+
+      - name: Package immutable conversion candidate
+        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        run: |
+          conversion=$(find artifacts/price_v2/conversion -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
+          test -n "$conversion"
+          python scripts/package_v2_candidate.py "$conversion" --output build/publication
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d=json.loads(Path('build/publication/discovery.json').read_text())
+          with open(os.environ['GITHUB_ENV'],'a',encoding='utf-8') as f:
+              f.write(f"PUBLICATION_TAG={d['github_release']['tag']}\n")
+              f.write(f"PUBLICATION_ASSET={d['github_release']['asset_name']}\n")
+              f.write(f"PUBLICATION_RELEASE_ID={d['release_id']}\n")
+          PY
+
+      - name: Publish or verify immutable GitHub Release transport
+        if: github.event_name != 'workflow_dispatch' || inputs.mode == 'full-v2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          asset="build/publication/$PUBLICATION_ASSET"
+          discovery="build/publication/discovery.json"
+          if gh release view "$PUBLICATION_TAG" >/dev/null 2>&1; then
+            mkdir -p build/existing-release
+            gh release download "$PUBLICATION_TAG" -p "$PUBLICATION_ASSET" -p discovery.json -D build/existing-release
+            cmp "$asset" "build/existing-release/$PUBLICATION_ASSET"
+            cmp "$discovery" build/existing-release/discovery.json
+            echo "Existing immutable release matches byte-for-byte: $PUBLICATION_TAG"
+          else
+            gh release create "$PUBLICATION_TAG" "$asset" "$discovery" \
+              --prerelease \
+              --target "$GITHUB_SHA" \
+              --title "$PUBLICATION_RELEASE_ID (candidate)" \
+              --notes "Immutable candidate transport for research.argentina-monetary-conversion/v1. Candidate publication is not scientific approval."
+          fi
 
       - name: Apply scheduled or explicitly requested maturity gate
         if: github.event_name == 'schedule' || inputs.require_approved_latest
@@ -77,10 +122,10 @@ jobs:
             echo
             echo "The fixed panel is INDEC, CABA, Córdoba, San Luis and Neuquén. Missing members lower coverage; they are never replaced dynamically by another province."
             echo
-            echo "Scheduled runs enforce the >=3-member latest-period maturity gate. Manual UI runs default to building/validating the complete candidate without making thin latest coverage a hard failure; enable the dispatch maturity option to exercise that gate explicitly."
+            echo "A validated conversion candidate is published as an immutable prerelease before the separate latest-period maturity gate. Candidate publication never upgrades scientific status."
             echo
             echo '```text'
-            find build/price_sources artifacts/price_v2 -maxdepth 5 -type f -printf '%p\n' 2>/dev/null | sort | head -300 || true
+            find build/price_sources artifacts/price_v2 build/publication -maxdepth 5 -type f -printf '%p\n' 2>/dev/null | sort | head -300 || true
             echo '```'
             if [ -d artifacts/price_v2/consensus ]; then
               latest=$(find artifacts/price_v2/consensus -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
@@ -102,5 +147,6 @@ jobs:
           path: |
             build/price_sources
             artifacts/price_v2
+            build/publication
           if-no-files-found: warn
           retention-days: 14
