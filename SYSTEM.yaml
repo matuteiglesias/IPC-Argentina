@@ -46,7 +46,7 @@ generated_paths:
 - artifacts/indec_ipc_regional_divisions/
 - build/indec_ipc_regional_divisions/
 verification:
-  status: v2-candidate-publication-operational
+  status: v2-candidate-publication-operational-regional-ipc-p1-commissioned
   last_verified: '2026-09-28'
   notes:
   - curated-official-panel-v2 contracts, normalized source/consensus/conversion builders and validators are implemented
@@ -54,11 +54,13 @@ verification:
   - immutable candidate publication and ecosystem-release-discovery are implemented
   - scheduled Monday candidate maintenance preserves coverage/maturity separately from approval
   - direct INDEC regional-division contract, deterministic parser/release and synthetic offline tests are implemented without changing consensus membership
+  - real P1 regional-division release indec-ipc-regional-divisions-v1-2809f9093513-d84ce096c28f was commissioned from producer commit eccf1a6cabfff3f09e69871fca2cda9f1e1ad36f
+  - P1 real coverage: 117 complete months, six regions, twelve divisions, 8,424 cells, May 2018 through December 2025, zero missing and zero duplicate cells
   unknowns:
   - v2 scientific comparison/promotion has not been recorded as a final approved-mode decision
   - candidate availability must not be interpreted as approved status
   - historical EPH monetary-reference lineage remains a separate compatibility/research question
-  - live INDEC regional-division materialization and 2018-05..2025-12 coverage receipt remain a Codex P1 commissioning step; hosted tests do not fabricate that evidence
+  - direct regional-division P1 is commissioned; future source refreshes must re-run the same immutable coverage gate
 maintenance:
   cadence: weekly-source-candidate-plus-manual-promotion
   next_review: '2026-10-05'
