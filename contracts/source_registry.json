@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "registry_id": "registry:research.argentina-price-sources@2",
-  "recorded_at_utc": "2026-08-31T01:35:00Z",
-  "purpose": "Preserve the legacy source graph while adding the fixed five-member official panel required by curated-official-panel-v2.",
+  "recorded_at_utc": "2026-09-28T19:15:00Z",
+  "purpose": "Preserve the legacy and curated consensus source graph while registering separate direct-official dimensional evidence products without making them consensus members.",
   "sources": [
     {
       "source_id": "indec_ipc_gba_historical",
@@ -118,7 +118,11 @@
         "kind": "direct_file",
         "url": "https://www.estadisticaneuquen.gob.ar/apps/calculadora/php/api.php",
         "payload_type": "application/json",
-        "expected_fields": ["anio", "mes", "indice"]
+        "expected_fields": [
+          "anio",
+          "mes",
+          "indice"
+        ]
       },
       "parser_id": "neuquen_ipc_provincial/calculator-json-v1",
       "authority_class": "official_source",
@@ -159,5 +163,43 @@
     "do_not_require_every_source_for_every_month": true,
     "require_at_least_one_valid_source_per_emitted_month": true,
     "dynamic_panel_substitution": false
-  }
+  },
+  "direct_official_sources": [
+    {
+      "source_id": "indec_ipc_regional_divisions",
+      "authority": "Instituto Nacional de Estadistica y Censos (INDEC)",
+      "jurisdiction": "Argentina - six official statistical regions",
+      "role": "direct_dimensional_official_evidence",
+      "frequency": "monthly",
+      "landing_page": "https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",
+      "retrieval": {
+        "kind": "direct_csv",
+        "url": "https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv"
+      },
+      "metadata_url": "https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_metadatos.txt",
+      "parser_id": "indec_ipc_regional_divisions/csv-v1",
+      "source_semantics": {
+        "grain": "month x official region x COICOP division",
+        "regions": [
+          "gran_buenos_aires",
+          "pampeana",
+          "noreste",
+          "noroeste",
+          "cuyo",
+          "patagonia"
+        ],
+        "index_base": "December 2016=100"
+      },
+      "authority_class": "official_source",
+      "operational_status": "stable_official_historical_csv",
+      "product_ids": [
+        "publicdata.indec-ipc-regional-divisions/v1"
+      ],
+      "consensus_eligible": false,
+      "notes": [
+        "This source is direct dimensional evidence only and is not a member of curated-official-panel-v2.",
+        "No ENGHo weights, cross-publisher averaging, poverty-basket logic or missing-value imputation are authorized here."
+      ]
+    }
+  ]
 }

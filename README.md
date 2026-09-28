@@ -6,6 +6,20 @@
 
 ## Current product families
 
+### Direct official INDEC regional divisions
+
+A separate direct-evidence product preserves the official INDEC monthly region × expenditure-division surface without entering the multi-source consensus:
+
+```text
+official INDEC serie_ipc_divisiones.csv + metadata
+        ↓
+exact source lock + source-cell lineage
+        ↓
+publicdata.indec-ipc-regional-divisions/v1
+```
+
+It uses the six official statistical regions and stable `coicop01`–`coicop12` division IDs, retaining the official Spanish label and the explicit December 2016=100 base. Missing cells and missing months are diagnostics, never imputed. This product does not apply ENGHo weights or construct Engel coefficients, CBA or CBT. See `contracts/indec_ipc_regional_divisions_v1.json` and `docs/INDEC_IPC_REGIONAL_DIVISIONS_V1.md`.
+
 ### Curated official panel v2
 
 The active modern method is:
@@ -35,6 +49,7 @@ The historical composite and the committed `data/info/` snapshots remain compati
 This repository owns:
 
 - exact retained source snapshots, provenance and source eligibility policy;
+- direct normalized official dimensional price surfaces with cell-level lineage;
 - the fixed-panel v2 analytical method and coverage classes;
 - versioned analytical monetary-reference identities;
 - deterministic consensus/conversion candidates and their manifests/checksums;
@@ -59,7 +74,7 @@ Candidate publication intentionally remains separate from approval. A healthy sc
 
 The modern v2 contracts live in `contracts/panel_v2.json` and the v2 implementation under `src/arg_price/`. Scheduled candidate maintenance is in `.github/workflows/scheduled-price-candidate.yml`.
 
-Useful local verification surfaces include the repository's existing checks/tests plus the v2 audit and release validators. See `docs/V2_DELIVERY_PLAN.md` for the implemented product graph and the remaining promotion gate.
+Useful local verification surfaces include the repository's existing checks/tests, the direct INDEC regional-division synthetic suite, and the v2 audit/release validators. See `docs/V2_DELIVERY_PLAN.md` for the implemented product graph and the remaining promotion gate.
 
 ## Historical snapshot
 

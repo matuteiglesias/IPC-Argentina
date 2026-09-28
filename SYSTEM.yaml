@@ -12,6 +12,7 @@ authority:
   status: current-candidate-authority
   owns:
   - exact retained price-source snapshots and provenance
+  - direct normalized official dimensional price surfaces with source-cell lineage
   - fixed-panel analytical price-consensus method and source-eligibility policy
   - monetary-reference identities and governed conversion factors
   - candidate/reviewed/approved status and coverage/maturity metadata
@@ -25,6 +26,7 @@ interfaces:
   consumes: []
   produces:
   - artifact:publicdata.argentina-price-sources/v1
+  - artifact:publicdata.indec-ipc-regional-divisions/v1
   - artifact:research.argentina-price-consensus/v2
   - artifact:research.argentina-monetary-conversion/v1
   - artifact:publicdata.price-index@1 (legacy compatibility)
@@ -37,21 +39,26 @@ canonical_commands:
 - make check
 - make smoke
 - make regenerate
+- make indec-regional-test
 generated_paths:
 - data/info/
 - figuras/
+- artifacts/indec_ipc_regional_divisions/
+- build/indec_ipc_regional_divisions/
 verification:
   status: v2-candidate-publication-operational
-  last_verified: '2026-08-31'
+  last_verified: '2026-09-28'
   notes:
   - curated-official-panel-v2 contracts, normalized source/consensus/conversion builders and validators are implemented
   - Neuquen is a first-class official panel adapter
   - immutable candidate publication and ecosystem-release-discovery are implemented
   - scheduled Monday candidate maintenance preserves coverage/maturity separately from approval
+  - direct INDEC regional-division contract, deterministic parser/release and synthetic offline tests are implemented without changing consensus membership
   unknowns:
   - v2 scientific comparison/promotion has not been recorded as a final approved-mode decision
   - candidate availability must not be interpreted as approved status
   - historical EPH monetary-reference lineage remains a separate compatibility/research question
+  - live INDEC regional-division materialization and 2018-05..2025-12 coverage receipt remain a Codex P1 commissioning step; hosted tests do not fabricate that evidence
 maintenance:
   cadence: weekly-source-candidate-plus-manual-promotion
   next_review: '2026-10-05'
