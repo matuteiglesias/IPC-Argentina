@@ -6,24 +6,33 @@ repository:
   github: matuteiglesias/IPC-Argentina
 domain: public-data
 system: publicdata.prices
-role: derived-price-index-producer
-lifecycle: maintenance
+role: monetary-reference-and-conversion-authority
+lifecycle: active-maintenance
 authority:
-  status: proposed
+  status: current-candidate-authority
   owns:
-  - versioned composite price-index artifacts and historical transformation logic
-  - observed-versus-projected cutoff declaration
+  - exact retained price-source snapshots and provenance
+  - fixed-panel analytical price-consensus method and source-eligibility policy
+  - monetary-reference identities and governed conversion factors
+  - candidate/reviewed/approved status and coverage/maturity metadata
+  - immutable candidate packaging and release-discovery boundary
   does_not_own:
-  - official jurisdictional IPC authority
-  - guaranteed current data
-  - regional basket semantics
+  - official jurisdictional IPC publication authority
+  - poverty basket or threshold semantics
+  - EPH model targets or welfare inference
+  - poverty classification or FGT
 interfaces:
   consumes: []
   produces:
-  - artifact:publicdata.price-index@1
+  - artifact:publicdata.argentina-price-sources/v1
+  - artifact:research.argentina-price-consensus/v2
+  - artifact:research.argentina-monetary-conversion/v1
+  - artifact:publicdata.price-index@1 (legacy compatibility)
 upstream: []
 downstream:
 - repo.canastasindec
+- repo.income-modeling-eph
+- repo.encuestador-de-hogares
 canonical_commands:
 - make check
 - make smoke
@@ -32,13 +41,17 @@ generated_paths:
 - data/info/
 - figuras/
 verification:
-  status: partial
-  last_verified: '2026-08-04'
-  command: make check
+  status: v2-candidate-publication-operational
+  last_verified: '2026-08-31'
+  notes:
+  - curated-official-panel-v2 contracts, normalized source/consensus/conversion builders and validators are implemented
+  - Neuquen is a first-class official panel adapter
+  - immutable candidate publication and ecosystem-release-discovery are implemented
+  - scheduled Monday candidate maintenance preserves coverage/maturity separately from approval
   unknowns:
-  - Make targets require execution from a local checkout
-  - latest successful source refresh is unknown
-  - official-source compatibility requires a live regeneration
+  - v2 scientific comparison/promotion has not been recorded as a final approved-mode decision
+  - candidate availability must not be interpreted as approved status
+  - historical EPH monetary-reference lineage remains a separate compatibility/research question
 maintenance:
-  cadence: annual
-  next_review: '2027-02-01'
+  cadence: weekly-source-candidate-plus-manual-promotion
+  next_review: '2026-10-05'
