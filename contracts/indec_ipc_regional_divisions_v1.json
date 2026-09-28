@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "product_id": "publicdata.indec-ipc-regional-divisions/v1",
+  "authority": "Instituto Nacional de Estadística y Censos (INDEC)",
+  "source_id": "indec_ipc_regional_divisions",
+  "source": {
+    "landing_page": "https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",
+    "data_url": "https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_divisiones.csv",
+    "metadata_url": "https://www.indec.gob.ar/ftp/cuadros/economia/serie_ipc_metadatos.txt",
+    "frequency": "monthly",
+    "index_base": "2016-12=100",
+    "classification": "COICOP divisions"
+  },
+  "grain": [
+    "period",
+    "region_id",
+    "division_id"
+  ],
+  "regions": [
+    "cuyo",
+    "gran_buenos_aires",
+    "noreste",
+    "noroeste",
+    "pampeana",
+    "patagonia"
+  ],
+  "division_ids": [
+    "coicop01",
+    "coicop02",
+    "coicop03",
+    "coicop04",
+    "coicop05",
+    "coicop06",
+    "coicop07",
+    "coicop08",
+    "coicop09",
+    "coicop10",
+    "coicop11",
+    "coicop12"
+  ],
+  "fields": [
+    "period",
+    "region_id",
+    "division_id",
+    "division_label",
+    "index_value",
+    "index_base",
+    "source_id",
+    "source_snapshot_sha256",
+    "source_cell_identity",
+    "value_status"
+  ],
+  "value_status": "direct_official_observation",
+  "source_cell_identity": "stable locator to the exact row and index-value column in the pinned INDEC CSV, plus normalized period/region/division identity",
+  "release_identity": "content-addressed from the pinned source SHA-256 and normalized payload SHA-256",
+  "coverage_contract": {
+    "reports": [
+      "first_month",
+      "last_month",
+      "number_of_months",
+      "expected_months_in_span",
+      "missing_months",
+      "region_inventory",
+      "division_inventory",
+      "missing_cells",
+      "duplicate_cells",
+      "index_base_consistency",
+      "structural_breaks"
+    ],
+    "engel_research_gate": "real-data commissioning must contain every month from 2018-05 through 2025-12"
+  },
+  "forbidden_transformations": [
+    "multi-source averaging or consensus inclusion",
+    "ENGHo expenditure weighting",
+    "Engel coefficient construction",
+    "CBA or CBT construction",
+    "silent imputation of missing regional observations"
+  ],
+  "separate_from": [
+    "research.argentina-price-consensus/v2",
+    "research.argentina-monetary-conversion/v1"
+  ]
+}
