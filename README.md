@@ -20,6 +20,8 @@ publicdata.indec-ipc-regional-divisions/v1
 
 It uses the six official statistical regions and stable `coicop01`–`coicop12` division IDs, retaining the official Spanish label and the explicit December 2016=100 base. Missing cells and missing months are diagnostics, never imputed. This product does not apply ENGHo weights or construct Engel coefficients, CBA or CBT. See `contracts/indec_ipc_regional_divisions_v1.json` and `docs/INDEC_IPC_REGIONAL_DIVISIONS_V1.md`.
 
+**Real P1 commissioning:** producer commit `eccf1a6cabfff3f09e69871fca2cda9f1e1ad36f` materialized `indec-ipc-regional-divisions-v1-2809f9093513-d84ce096c28f` with 8,424 direct cells: 117 complete months × 6 regions × 12 divisions, May 2018 through December 2025, with zero missing or duplicate cells. This establishes the governed price surface used by the Engel trajectory laboratory; it does not promote the separate multi-source IPC consensus.
+
 ### Curated official panel v2
 
 The active modern method is:
