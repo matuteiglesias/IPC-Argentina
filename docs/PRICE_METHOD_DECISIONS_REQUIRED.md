@@ -1,5 +1,7 @@
 # Price methodology decisions required
 
+> **Historical decision packet.** The candidate-v1 choices on this page were superseded by `PRICE_METHOD_DECISION_RECORD_V1.md`; the modern curated-official-panel v2 contracts/candidate machinery are implemented separately. Current unresolved work is the explicit v2 scientific review/promotion gate tracked by issue #18. Do not treat this page as the active queue.
+
 No option below is selected. Matías must approve any real candidate release.
 
 | Decision | Evidence-backed alternatives | Consequences |
