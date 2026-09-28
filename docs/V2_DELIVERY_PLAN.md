@@ -1,7 +1,9 @@
 # IPC-Argentina v2 delivery plan
 
-Status: **planned**  
-Tracking issue: **#18 — Build curated official multi-source IPC consensus v2**
+Status: **candidate system implemented; scientific promotion/review remains open**  
+Tracking issue: **#18 — review/promote curated official-panel v2 for approved-mode use**
+
+W0-W4 and the scheduled candidate/publication mechanics are implemented on `main`: fixed panel/policy contracts, exact source adapters including Neuquén, normalized source/consensus/conversion builders, validators and immutable candidate packaging. The remaining gate is scientific review/promotion, including review of the v1↔v2 audit and explicit approved-mode eligibility. Candidate health must not be rewritten as approval.
 
 ## Mission
 
