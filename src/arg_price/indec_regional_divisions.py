@@ -98,7 +98,11 @@ def _find_column(columns: dict[str, str], *aliases: str, required: bool = True) 
 
 def _parse_period(value: object) -> str:
     raw = str(value or "").strip()
-    for pattern in (r"^(\d{4})[-/](\d{1,2})(?:[-/]\d{1,2})?$", r"^(\d{1,2})[-/](\d{4})$"):
+    for pattern in (
+        r"^(\d{4})[-/](\d{1,2})(?:[-/]\d{1,2})?$",
+        r"^(\d{1,2})[-/](\d{4})$",
+        r"^(\d{4})(\d{2})$",
+    ):
         match = re.match(pattern, raw)
         if match:
             if pattern.startswith("^(\\d{4})"):
@@ -136,6 +140,11 @@ def _division_from_row(label: object, code: object = "", classifier: object = ""
     # Be tolerant of a source code such as 01, 1, 01.0 or COICOP 01, but only
     # after confirming the row is classified as a division rather than a group.
     class_plain = _plain(classifier)
+    if class_plain in {"categorias", "bienes y servicios"}:
+        # The live INDEC file contains category and goods/services rows in the
+        # same CSV. They are valid source observations but outside this
+        # division-only product contract.
+        return None
     if class_plain and "division" not in class_plain and "coicop" not in class_plain:
         raise ValueError(f"unsupported_classifier:{classifier}")
     digits = re.findall(r"\d+", str(code or ""))
@@ -150,7 +159,13 @@ def _division_from_row(label: object, code: object = "", classifier: object = ""
 
 def normalize_csv(raw: bytes, source_snapshot_sha256: str | None = None) -> list[dict[str, str]]:
     digest = source_snapshot_sha256 or hashlib.sha256(raw).hexdigest()
-    text = raw.decode("utf-8-sig")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        # The live INDEC historical CSV is published as Windows-1252. Keep
+        # UTF-8 as the first path for reviewed fixtures and future snapshots,
+        # then accept the documented legacy encoding without recoding values.
+        text = raw.decode("cp1252")
     sample = text[:8192]
     try:
         dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")

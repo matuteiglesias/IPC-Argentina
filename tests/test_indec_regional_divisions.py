@@ -67,6 +67,23 @@ class RegionalDivisionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "base_period_inconsistent"):
             normalize_csv(("\n".join(lines) + "\n").encode())
 
+    def test_cp1252_source_encoding_is_supported_without_value_recoding(self):
+        raw = self.raw().replace("alcohólicas".encode(), "alcohólicas".encode("cp1252"))
+        rows = normalize_csv(raw)
+        self.assertEqual(len(rows), 12)
+        self.assertEqual(rows[0]["division_id"], "coicop01")
+        self.assertEqual(rows[0]["division_label"], "Alimentos y bebidas no alcohólicas")
+
+    def test_compact_yyyymm_period_is_supported(self):
+        raw = self.raw().replace(b"2024-01", b"202401")
+        rows = normalize_csv(raw)
+        self.assertIn("2024-01-01", {row["period"] for row in rows})
+
+    def test_non_division_source_rows_are_excluded(self):
+        extra = b"2024-01,GBA,1,,Categorias,100,NA,NA\n"
+        rows = normalize_csv(self.raw() + extra)
+        self.assertEqual(len(rows), 12)
+
     def test_deterministic_release_and_validation(self):
         raw = self.raw()
         with tempfile.TemporaryDirectory() as tmp:

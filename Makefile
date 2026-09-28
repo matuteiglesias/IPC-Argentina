@@ -88,7 +88,7 @@ indec-regional-lock:
 	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions lock --output-root build/indec_ipc_regional_divisions
 
 indec-regional-build:
-	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions build --lock "${REGIONAL_LOCK:-build/indec_ipc_regional_divisions/source_lock.json}" --output-root artifacts/indec_ipc_regional_divisions
+	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions build --lock "$(if $(REGIONAL_LOCK),$(REGIONAL_LOCK),build/indec_ipc_regional_divisions/source_lock.json)" --output-root artifacts/indec_ipc_regional_divisions
 
 indec-regional-check:
 	@test -n "$(REGIONAL_RELEASE)" || (echo "REGIONAL_RELEASE is required" >&2; exit 2)
