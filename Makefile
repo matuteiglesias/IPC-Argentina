@@ -1,6 +1,6 @@
 PY ?= python3
 
-.PHONY: help check smoke regenerate release-fixture release-check monetary-lineage-report price-source-probe price-source-lock price-source-lock-check price-candidate price-candidate-check price-candidate-smoke price-v2-build price-v2-check price-v2-approved-check price-v2-audit test-price
+.PHONY: help check smoke regenerate release-fixture release-check monetary-lineage-report price-source-probe price-source-lock price-source-lock-check price-candidate price-candidate-check price-candidate-smoke price-v2-build price-v2-check price-v2-approved-check price-v2-audit indec-regional-lock indec-regional-build indec-regional-check indec-regional-coverage indec-regional-test test-price
 
 help:
 	@echo "IPC-Argentina command surface"
@@ -20,6 +20,11 @@ help:
 	@echo "  make price-v2-check           Validate all three v2 candidate releases independently"
 	@echo "  make price-v2-approved-check  Require latest v2 consensus month to have >=3 contributors"
 	@echo "  make price-v2-audit           Compare v1/v2 common support and bounded robustness diagnostics"
+	@echo "  make indec-regional-lock      Pin official INDEC regional-division CSV + metadata (network)"
+	@echo "  make indec-regional-build     Build direct official regional-division release from its lock"
+	@echo "  make indec-regional-check     Validate a real release incl. contiguous 2018-05..2025-12 coverage"
+	@echo "  make indec-regional-coverage  Print coverage/identity diagnostics for a release"
+	@echo "  make indec-regional-test      Run synthetic regional-division tests offline"
 	@echo ""
 	@echo "Regeneration may require network access and source compatibility."
 
@@ -78,6 +83,23 @@ price-v2-approved-check:
 price-v2-audit:
 	@test -n "$(V2_NORMALIZED)" -a -n "$(V2_CONSENSUS)" || (echo "V2_NORMALIZED and V2_CONSENSUS are required" >&2; exit 2)
 	PYTHONPATH=src $(PY) -m arg_price.v2_audit --normalized-sources "$(V2_NORMALIZED)/normalized_sources.csv" --consensus-monthly "$(V2_CONSENSUS)/monthly_consensus.csv" --output "$${AUDIT_OUTPUT:-artifacts/price_v2/audit}"
+
+indec-regional-lock:
+	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions lock --output-root build/indec_ipc_regional_divisions
+
+indec-regional-build:
+	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions build --lock "${REGIONAL_LOCK:-build/indec_ipc_regional_divisions/source_lock.json}" --output-root artifacts/indec_ipc_regional_divisions
+
+indec-regional-check:
+	@test -n "$(REGIONAL_RELEASE)" || (echo "REGIONAL_RELEASE is required" >&2; exit 2)
+	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions validate "$(REGIONAL_RELEASE)" --require-engel-window
+
+indec-regional-coverage:
+	@test -n "$(REGIONAL_RELEASE)" || (echo "REGIONAL_RELEASE is required" >&2; exit 2)
+	PYTHONPATH=src $(PY) -m arg_price.indec_regional_divisions coverage "$(REGIONAL_RELEASE)"
+
+indec-regional-test:
+	PYTHONPATH=src $(PY) -m unittest tests.test_indec_regional_divisions
 
 test-price:
 	PYTHONPATH=src $(PY) -m unittest discover -s tests
