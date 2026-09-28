@@ -91,6 +91,14 @@ class RegionalDivisionTests(unittest.TestCase):
             self.assertEqual(tuple(rows[0]), OUTPUT_FIELDS)
             self.assertEqual(len(rows), 12)
 
+    def test_registry_keeps_direct_source_out_of_consensus_roster(self):
+        registry_path = Path(__file__).resolve().parents[1] / "contracts" / "source_registry.json"
+        registry = json.loads(registry_path.read_text())
+        direct = {row["source_id"]: row for row in registry["direct_official_sources"]}
+        self.assertIn("indec_ipc_regional_divisions", direct)
+        self.assertFalse(direct["indec_ipc_regional_divisions"]["consensus_eligible"])
+        self.assertNotIn("indec_ipc_regional_divisions", registry["curated_official_panel_v2_sources"])
+
     def test_real_coverage_gate_is_optional_for_hosted_fixture(self):
         raw = self.raw()
         with tempfile.TemporaryDirectory() as tmp:
