@@ -3,7 +3,7 @@
 Status: **candidate system implemented; scientific promotion/review remains open**  
 Tracking issue: **#18 — review/promote curated official-panel v2 for approved-mode use**
 
-W0-W4 and the scheduled candidate/publication mechanics are implemented on `main`: fixed panel/policy contracts, exact source adapters including Neuquén, normalized source/consensus/conversion builders, validators and immutable candidate packaging. The remaining gate is scientific review/promotion, including review of the v1↔v2 audit and explicit approved-mode eligibility. Candidate health must not be rewritten as approval.
+W0-W4 and the scheduled candidate/publication mechanics are implemented on `main`: fixed panel/policy contracts, exact source adapters including Neuquén, normalized source/consensus/conversion builders, validators and immutable candidate packaging. The remaining gate is scientific review/promotion, including review of the v1↔v2 audit and explicit approved-mode eligibility. Candidate health must not be rewritten as approval. `make price-v2-promote` now provides only the mechanical half of promotion: it requires an owner-supplied `argentina-price-v2-promotion-decision/v1` record that pins the exact candidate manifest hashes and exact audit-summary hash. The command cannot create or infer that decision.
 
 ## Mission
 
@@ -252,3 +252,51 @@ The first v2 is ready for governed use when:
 6. v1 versus v2 comparison has been reviewed;
 7. scheduled maintenance rebuilds candidate evidence without dynamic source substitution; and
 8. each accepted consumer period has at least `acceptable_coverage`, or the consumer is explicitly blocked.
+## Explicit promotion packet
+
+Scientific promotion is deliberately two-step.
+
+1. Review the exact v1↔v2 audit and candidate QA outside the promotion command.
+2. Only after the owner records an explicit decision, materialize immutable approved children.
+
+The decision file must have this minimum shape:
+
+```json
+{
+  "schema": "argentina-price-v2-promotion-decision/v1",
+  "decision_id": "<stable review id>",
+  "decision": "approved",
+  "approved_by": "<owner identity>",
+  "decided_at": "<UTC timestamp>",
+  "candidates": {
+    "consensus": {
+      "release_id": "<candidate consensus release>",
+      "manifest_sha256": "<exact manifest sha256>"
+    },
+    "conversion": {
+      "release_id": "<candidate conversion release>",
+      "manifest_sha256": "<exact manifest sha256>"
+    }
+  },
+  "audit": {
+    "summary_sha256": "<exact audit summary sha256>"
+  }
+}
+```
+
+Then run:
+
+```bash
+make price-v2-promote \
+  V2_CONSENSUS=/path/to/exact/candidate-consensus \
+  V2_CONVERSION=/path/to/exact/candidate-conversion \
+  PROMOTION_DECISION=/path/to/owner-decision.json \
+  AUDIT_SUMMARY=/path/to/audit/summary.json
+
+make price-v2-package-approved \
+  V2_APPROVED_CONVERSION=/path/to/approved-conversion
+```
+
+Promotion creates new immutable approved child identities; it never mutates candidate directories. The approved conversion points at the newly approved consensus child. The packager emits an `ecosystem-release-discovery/v1` envelope with `status=approved` and an `approved-<release_id>` transport tag.
+
+The promotion command still fails closed if the latest consensus period is not approved-mode eligible. An agent must not fabricate the owner decision merely to satisfy this gate.
