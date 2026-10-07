@@ -20,6 +20,8 @@ help:
 	@echo "  make price-v2-check           Validate all three v2 candidate releases independently"
 	@echo "  make price-v2-approved-check  Require latest v2 consensus month to have >=3 contributors"
 	@echo "  make price-v2-audit           Compare v1/v2 common support and bounded robustness diagnostics"
+	@echo "  make price-v2-promote         Materialize approved children from an explicit owner decision"
+	@echo "  make price-v2-package-approved Package an approved conversion for immutable transport"
 	@echo "  make indec-regional-lock      Pin official INDEC regional-division CSV + metadata (network)"
 	@echo "  make indec-regional-build     Build direct official regional-division release from its lock"
 	@echo "  make indec-regional-check     Validate a real release incl. contiguous 2018-05..2025-12 coverage"
@@ -103,3 +105,19 @@ indec-regional-test:
 
 test-price:
 	PYTHONPATH=src $(PY) -m unittest discover -s tests
+
+.PHONY: price-v2-promote price-v2-package-approved
+
+price-v2-promote:
+	@test -n "$(V2_CONSENSUS)" -a -n "$(V2_CONVERSION)" -a -n "$(PROMOTION_DECISION)" -a -n "$(AUDIT_SUMMARY)" || (echo "V2_CONSENSUS, V2_CONVERSION, PROMOTION_DECISION and AUDIT_SUMMARY are required" >&2; exit 2)
+	PYTHONPATH=src $(PY) -m arg_price.v2_promote \\
+		--consensus-candidate "$(V2_CONSENSUS)" \\
+		--conversion-candidate "$(V2_CONVERSION)" \\
+		--decision "$(PROMOTION_DECISION)" \\
+		--audit-summary "$(AUDIT_SUMMARY)" \\
+		--output-root "$${APPROVED_OUTPUT_ROOT:-artifacts/price_v2/approved}"
+
+price-v2-package-approved:
+	@test -n "$(V2_APPROVED_CONVERSION)" || (echo "V2_APPROVED_CONVERSION is required" >&2; exit 2)
+	$(PY) scripts/package_v2_approved.py "$(V2_APPROVED_CONVERSION)" \\
+		--output "$${APPROVED_PUBLICATION_OUTPUT:-build/approved-publication}"
