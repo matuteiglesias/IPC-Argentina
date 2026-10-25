@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Dedicated main-branch source-receipt exporter only
 
 concurrency:
   group: scheduled-price-v2-convergence
@@ -31,6 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
+      - name: Capture source producer start
+        run: echo "PRODUCER_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -40,14 +44,17 @@ jobs:
           python-version: "3.12"
 
       - name: Verify offline snapshot and price contracts
+        id: preflight
         run: |
           make check
           make test-price
 
       - name: Acquire exact declared source bytes once
+        id: source
         run: make price-source-lock
 
       - name: Verify relocatable source lock
+        id: lock
         run: make price-source-lock-check
 
       - name: Install bounded workbook adapters
@@ -55,14 +62,17 @@ jobs:
         run: python -m pip install -r requirements-source.txt
 
       - name: Build normalized sources, v2 consensus and conversion candidates
+        id: build
         if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: make price-v2-build SOURCE_LOCK=build/price_sources/source_lock.json
 
       - name: Independently validate all v2 candidate releases
+        id: validate
         if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: make price-v2-check
 
       - name: Package immutable conversion candidate
+        id: package
         if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         run: |
           conversion=$(find artifacts/price_v2/conversion -mindepth 1 -maxdepth 1 -type d | sort | tail -1)
@@ -79,6 +89,7 @@ jobs:
           PY
 
       - name: Publish or verify immutable GitHub Release transport
+        id: publish
         if: github.event_name == 'schedule' || inputs.mode == 'full-v2'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -99,6 +110,28 @@ jobs:
               --title "$PUBLICATION_RELEASE_ID (candidate)" \
               --notes "Immutable candidate transport for research.argentina-monetary-conversion/v1. Candidate publication is not scientific approval."
           fi
+          # Only claim transport when the public prerelease is actually
+          # readable and BOTH published assets match current local bytes.
+          test "$(gh release view "$PUBLICATION_TAG" --json isPrerelease --jq .isPrerelease)" = "true"
+          mkdir -p build/release-verification
+          gh release download "$PUBLICATION_TAG" -p "$PUBLICATION_ASSET" -p discovery.json -D build/release-verification
+          cmp "$asset" "build/release-verification/$PUBLICATION_ASSET"
+          cmp "$discovery" build/release-verification/discovery.json
+          python - <<'PYCODE'
+          import hashlib, json
+          from pathlib import Path
+          d = json.loads(Path("build/publication/discovery.json").read_text())
+          g = d["github_release"]
+          h = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          assert d["status"] == "candidate" and g["tag"] == "candidate-" + d["release_id"]
+          assert h("build/publication/" + g["asset_name"]) == g["asset_sha256"]
+          witness = {"schema": "ipc-candidate-transport-verified/v1",
+                     "tag": g["tag"], "asset_sha256": g["asset_sha256"],
+                     "discovery_sha256": h("build/publication/discovery.json"), "prerelease": True}
+          Path("build/publication/verified-transport.json").write_text(
+              json.dumps(witness, sort_keys=True, indent=2) + "\n")
+          PYCODE
+
 
       - name: Assess scheduled candidate maturity
         id: scheduled_maturity
@@ -107,6 +140,7 @@ jobs:
         run: make price-v2-approved-check
 
       - name: Apply explicitly requested maturity gate
+        id: approval
         if: github.event_name == 'workflow_dispatch' && inputs.require_approved_latest
         run: make price-v2-approved-check
 
@@ -138,6 +172,76 @@ jobs:
               fi
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Emission is source-owned, independent of transport or maturity gating.
+      - name: Emit governed IPC candidate receipt
+        id: ipc_receipt
+        continue-on-error: true
+        if: always()
+        env:
+          PRODUCER_JOB_STATUS: ${{ job.status }}
+          PRODUCER_MODE: ${{ inputs.mode || 'full-v2' }}
+          PRODUCER_REQUIRE_APPROVED: ${{ inputs.require_approved_latest || 'false' }}
+          STEP_SOURCE: ${{ steps.source.outcome }}
+          STEP_LOCK: ${{ steps.lock.outcome }}
+          STEP_BUILD: ${{ steps.build.outcome }}
+          STEP_VALIDATE: ${{ steps.validate.outcome }}
+          STEP_PACKAGE: ${{ steps.package.outcome }}
+          STEP_PUBLISH: ${{ steps.publish.outcome }}
+          STEP_MATURITY: ${{ steps.scheduled_maturity.outcome }}
+          STEP_APPROVAL: ${{ steps.approval.outcome }}
+        run: |
+          python3 scripts/emit_ipc_candidate_receipt.py \
+            --started-at "${PRODUCER_STARTED_AT:-}" \
+            --output "build/producer-receipt/ipc-price-candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+          python3 -m scripts.export_ipc_candidate_gcp \
+            --receipt "build/producer-receipt/ipc-price-candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json" \
+            --scheduler-run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --validate-only
+
+      - name: Authenticate IPC receipt exporter (keyless)
+        id: ipc_gcp_auth
+        if: always() && steps.ipc_receipt.outcome == 'success'
+        continue-on-error: true
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: estate-observability-510700
+          workload_identity_provider: projects/456183330588/locations/global/workloadIdentityPools/estate-producer-github/providers/ipc-price-candidate-main-oidc
+          service_account: estate-ipc-receipt-writer@estate-observability-510700.iam.gserviceaccount.com
+
+      - name: Export IPC producer receipt to Cloud Logging
+        id: ipc_gcp_export
+        if: always() && steps.ipc_receipt.outcome == 'success' && steps.ipc_gcp_auth.outcome == 'success'
+        continue-on-error: true
+        run: |
+          python3 -m pip install 'google-auth>=2.30,<3' 'requests>=2.31,<3'
+          python3 -m scripts.export_ipc_candidate_gcp \
+            --receipt "build/producer-receipt/ipc-price-candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json" \
+            --scheduler-run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --write
+
+      - name: Report telemetry status independently
+        if: always()
+        continue-on-error: true
+        env:
+          RECEIPT_STATUS: ${{ steps.ipc_receipt.outcome }}
+          AUTH_STATUS: ${{ steps.ipc_gcp_auth.outcome }}
+          EXPORT_STATUS: ${{ steps.ipc_gcp_export.outcome }}
+        run: |
+          if [ "$EXPORT_STATUS" = "success" ]; then
+            echo "Semantic receipt exported to the dedicated GCP log." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Semantic receipt transport: receipt=$RECEIPT_STATUS, auth=$AUTH_STATUS, export=$EXPORT_STATUS (no effect on IPC candidate publication)." >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::IPC receipt export unavailable; inspect retained receipt artifact."
+          fi
+
+      - name: Upload safe producer receipt for recovery
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipc-semantic-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/producer-receipt/*.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Upload exact source and v2 candidate evidence
         if: always()
